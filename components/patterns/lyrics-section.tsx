@@ -26,7 +26,7 @@ export function LyricsSection({ verseTitle, guesses, currentTime = 0 }: LyricsSe
     { start: 5, end: 8 }, // I'M IN THIS BITCH TRYNA RUN IT UP
     { start: 8, end: 11 }, // LIKE IT'S A FULL [court] PRESS...
     { start: 11, end: 14 }, // I GOT TWO 10S WITH ME...
-    { start: 14, end: 17 }, // SHORTY CAME [through] AND...
+    { start: 14, end: 17 }, // SHORTY CAME [first] AND...
     { start: 17, end: 20 }, // NOW SHE GOT HER MOUTH ON IT...
     { start: 20, end: 23 }, // MET HER AT A PARTY...
     { start: 23, end: 26 }, // UNH, BUT FUCK IT NOW...
@@ -50,12 +50,12 @@ export function LyricsSection({ verseTitle, guesses, currentTime = 0 }: LyricsSe
 
   const getClueForWord = (word: string) => {
     const wordClues: Record<string, string> = {
-      "bitch": "What's another word for a difficult situation?",
-      "through": "Past tense of 'come'",
-      "budden": "Rhymes with 'sudden', sounds like a name",
-      "buttercup": "A delicate yellow flower",
+      "bitch": "A female dog",
+      "through": "Number one, before all others",
+      "budden": "Joe ______, 'sudden' with a B",
+      "buttercup": "The green Powerpuff Girl",
       "butternut": "Type of squash, rhymes with the previous answer",
-      "friend": "Someone close to you",
+      "friend": "Someone close to you, opposite of an enemy",
       "polygamy": "Marriage practice with multiple spouses",
       "court": "Basketball term for defensive pressure",
       "rug": "What you cut when you're dancing",
