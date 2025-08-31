@@ -13,7 +13,7 @@ export function AlbumCard({ title, artist, duration, albumArt, altText }: AlbumC
     <div className="flex items-center gap-4">
       <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
         <Image
-          src={albumArt || "/placeholder.svg"}
+          src={albumArt || "/Caliph_Polygamy_Cover_Art.jpg"}
           alt={altText}
           width={80}
           height={80}
