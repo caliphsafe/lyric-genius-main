@@ -125,6 +125,25 @@
 }
 
 @layer utilities {
+
+/* Keep tooltip above iOS home indicator/keyboard area */
+.tooltip-safe-mb {
+  margin-bottom: calc(env(safe-area-inset-bottom) + 88px); /* adjust 88px as needed */
+}
+
+/* General keyboard/safe-area padding for page content */
+.kb-safe-pb {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+/* Optional: bigger mobile-only bottom padding helper */
+@media (max-width: 768px) {
+  .pb-mobile-24 {
+    padding-bottom: 6rem; /* 96px */
+  }
+}
+
+  
   /* Adding minimal scroll indicator without track */
   .scrollbar-minimal::-webkit-scrollbar {
     width: 4px;
