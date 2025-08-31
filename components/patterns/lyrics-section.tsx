@@ -87,7 +87,7 @@ const correctAnswers = [
 "polygamy",
 "3rd",
 "wife",
-"3rd",
+"love",
 "3rd",
 "3rd",
 "termite",
@@ -636,7 +636,7 @@ value={guesses[12]?.value || ""}
 onChange={guesses[12]?.onChange || (() => {})}
 correctAnswer="Love"
 clue="Deep affection, tennis score of zero"
-onFocus={() => setFocusedWord("wife")}
+onFocus={() => setFocusedWord("love")}
 onBlur={() => setFocusedWord(null)}
 />
 <span className={`font-black uppercase ${isLyricActive(60) ? "text-black" : "text-black/25"}`}>3 TIMES AND THIS MY 3RD STRIKE</span>
