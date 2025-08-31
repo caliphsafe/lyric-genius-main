@@ -72,7 +72,8 @@ const wordClues: Record<string, string> = {
 "squirting": "To eject liquid in a stream",
 "cursive": "Joined-up handwriting style, the opposite of print writing",
 "wife": "A spouse that is a woman",
-"love": "Deep affection, tennis score of zero"
+"love": "Deep affection, tennis score of zero",
+"matching": "Coordinating, colors or clothes that go together"  
 }
 return wordClues[word] || "Enter a word to see the clue"
 }
@@ -90,7 +91,7 @@ const correctAnswers = [
 "3rd",
 "wife",
 "love",
-"3rd",
+"matching",
 "3rd",
 "termite",
 "birthright",
@@ -645,20 +646,21 @@ onBlur={() => setFocusedWord(null)}
 </div>
 <div className="flex flex-wrap items-center gap-2">
 <span className={`font-black uppercase ${isLyricActive(61) ? "text-black" : "text-black/25"}`}>
-IN HER DUGOUT DIGGING HER OUT FOR THE
-</span>
-<LyricInput
-value={guesses[14]?.value || ""}
-onChange={guesses[14]?.onChange || (() => {})}
-correctAnswer="3rd"
-clue="Baseball reference, same number"
-/>
-<span className={`font-black uppercase ${isLyricActive(61) ? "text-black" : "text-black/25"}`}>NIGHT</span>
+IN HER DUGOUT DIGGING HER OUT FOR THE 3RD NIGHT</span>
 </div>
 
-<p className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
-WE IN THE MAKINGS OF A MATCHING HIS AND HERS RIGHT
-</p>
+<span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
+WE IN THE MAKINGS OF A </span> 
+  <LyricInput
+value={guesses[12]?.value || ""}
+onChange={guesses[12]?.onChange || (() => {})}
+correctAnswer="Matching"
+clue="Deep affection, tennis score of zero"
+onFocus={() => setFocusedWord("matching")}
+onBlur={() => setFocusedWord(null)}
+/>
+  <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>HIS AND HERS RIGHT
+</span>
 <p className={`font-black uppercase ${isLyricActive(63) ? "text-black" : "text-black/25"}`}>
 OR AM I JUST TRYNA SEE IT IN REVERSE LIKE…
 </p>
