@@ -56,21 +56,21 @@ export function LyricsSection({ verseTitle, guesses, currentTime = 0 }: LyricsSe
       "buttercup": "The green Powerpuff Girl",
       "butternut": "Type of squash, rhymes with the previous answer",
       "friend": "Someone close to you, opposite of an enemy",
-      "polygamy": "Marriage practice with multiple spouses",
-      "court": "Basketball term for defensive pressure",
-      "rug": "What you cut when you're dancing",
-      "cuddle": "What you do when you snuggle close together",
-      "dead": "Completely, totally, or straight",
-      "kid": "Young person or child",
+      "polygamy": "The title of this song, multiple spouses",
+      "court": "Where people play basketball or get sued",
+      "rug": "Floor covering, carpet piece",
+      "cuddle": "Hugging in bed",
+      "dead": "No longer alive",
+      "kid": "A child, a baby goat",
       "sin": "What you commit when you do something wrong",
-      "gang": "Group of people who hang out together",
+      "gang": "A group of criminals, street crew",
       "adore": "To love or admire greatly",
-      "adhd": "Attention deficit hyperactivity disorder",
-      "ignore": "To pay no attention to",
-      "anaconda": "A large type of snake",
-      "twerking": "A dance move involving hip movements",
+      "adhd": "Acronym for Attention-deficit/hyperactivity disorder",
+      "ignore": "To pay no attention to, brush off",
+      "anaconda": "An extremely large type of snake",
+      "twerking": "Popular dance women do, shaking their rear end",
       "squirting": "To eject liquid in a stream",
-      "cursive": "Joined-up handwriting style"
+      "cursive": "Joined-up handwriting style, the opposite of print writing"
     }
     return wordClues[word] || "Enter a word to see the clue"
   }
@@ -594,15 +594,15 @@ export function LyricsSection({ verseTitle, guesses, currentTime = 0 }: LyricsSe
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(58) ? "text-black" : "text-black/25"}`}>
-              IF MY GRANDDADDY AIN'T HAVE HIS
+              IF MY GRANDDADDY AIN'T HAVE HIS 3RD
             </span>
             <LyricInput
               value={guesses[11]?.value || ""}
               onChange={guesses[11]?.onChange || (() => {})}
-              correctAnswer="3rd"
-              clue="Number that comes after second"
+              correctAnswer="Wife"
+              clue="A spouse that is a woman"
             />
-            <span className={`font-black uppercase ${isLyricActive(58) ? "text-black" : "text-black/25"}`}>WIFE</span>
+            <span className={`font-black uppercase ${isLyricActive(58) ? "text-black" : "text-black/25"}`}></span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
