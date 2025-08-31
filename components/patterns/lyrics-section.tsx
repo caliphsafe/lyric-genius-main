@@ -85,8 +85,8 @@ const correctAnswers = [
 "friend",
 "polygamy",
 "polygamy",
-      "3rd",
-      "wife",
+"3rd",
+"wife",
 "3rd",
 "3rd",
 "3rd",
@@ -447,6 +447,8 @@ value={guesses[27]?.value || ""}
 onChange={guesses[27]?.onChange || (() => {})}
 correctAnswer="ignore"
 clue="To deliberately not pay attention to someone"
+onFocus={() => setFocusedWord("ignore")}
+onBlur={() => setFocusedWord(null)}
 />
 <span className={`font-black uppercase ${isLyricActive(36) ? "text-black" : "text-black/25"}`}>
 ME
