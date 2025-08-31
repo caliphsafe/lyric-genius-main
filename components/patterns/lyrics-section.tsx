@@ -70,8 +70,8 @@ const wordClues: Record<string, string> = {
 "anaconda": "An extremely large type of snake",
 "twerking": "Popular dance women do, shaking their rear end",
 "squirting": "To eject liquid in a stream",
-"cursive": "Joined-up handwriting style, the opposite of print writing"
-"wife": "A spouse that is a woman"
+"cursive": "Joined-up handwriting style, the opposite of print writing",
+"wife": "A spouse that is a woman",
 "love": "Deep affection, tennis score of zero"
 }
 return wordClues[word] || "Enter a word to see the clue"
