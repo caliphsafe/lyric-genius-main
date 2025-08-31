@@ -648,19 +648,17 @@ onBlur={() => setFocusedWord(null)}
 <span className={`font-black uppercase ${isLyricActive(61) ? "text-black" : "text-black/25"}`}>
 IN HER DUGOUT DIGGING HER OUT FOR THE 3RD NIGHT</span>
 </div>
-
+<div className="flex flex-wrap items-center gap-2">
 <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
-WE IN THE MAKINGS OF A </span> 
-  <LyricInput
+WE IN THE MAKINGS OF A </span><LyricInput
 value={guesses[12]?.value || ""}
 onChange={guesses[12]?.onChange || (() => {})}
 correctAnswer="Matching"
 clue="Deep affection, tennis score of zero"
 onFocus={() => setFocusedWord("matching")}
 onBlur={() => setFocusedWord(null)}
-/>
-  <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>HIS AND HERS RIGHT
-</span>
+/><span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>HIS AND HERS RIGHT
+</span></div>
 <p className={`font-black uppercase ${isLyricActive(63) ? "text-black" : "text-black/25"}`}>
 OR AM I JUST TRYNA SEE IT IN REVERSE LIKE…
 </p>
