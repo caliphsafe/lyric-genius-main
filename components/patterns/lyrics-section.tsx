@@ -471,6 +471,8 @@ value={guesses[28]?.value || ""}
 onChange={guesses[28]?.onChange || (() => {})}
 correctAnswer="anaconda"
 clue="A large type of snake"
+  onFocus={() => setFocusedWord("anaconda")}
+onBlur={() => setFocusedWord(null)}
 />
 <span className={`font-black uppercase ${isLyricActive(40) ? "text-black" : "text-black/25"}`}>
 GOT HER THINKING THAT IT'S WORTH IT
@@ -485,6 +487,8 @@ value={guesses[29]?.value || ""}
 onChange={guesses[29]?.onChange || (() => {})}
 correctAnswer="twerking"
 clue="A dance move involving hip movements"
+onFocus={() => setFocusedWord("twerking")}
+onBlur={() => setFocusedWord(null)}
 />
 </div>
 <p className={`font-black uppercase ${isLyricActive(42) ? "text-black" : "text-black/25"}`}>
@@ -502,6 +506,8 @@ value={guesses[30]?.value || ""}
 onChange={guesses[30]?.onChange || (() => {})}
 correctAnswer="squirting"
 clue="To spray or shoot liquid in a stream"
+  onFocus={() => setFocusedWord("squirting")}
+onBlur={() => setFocusedWord(null)}
 />
 </div>
 <p className={`font-black uppercase ${isLyricActive(45) ? "text-black" : "text-black/25"}`}>
@@ -516,6 +522,8 @@ value={guesses[31]?.value || ""}
 onChange={guesses[31]?.onChange || (() => {})}
 correctAnswer="cursive"
 clue="A style of handwriting where letters are joined together"
+  onFocus={() => setFocusedWord("cursive")}
+onBlur={() => setFocusedWord(null)}
 className="flex-1"
 />
 </div>
@@ -532,6 +540,8 @@ value={guesses[10]?.value || ""}
 onChange={guesses[10]?.onChange || (() => {})}
 correctAnswer="polygamy"
 clue="Marriage practice with multiple spouses"
+  onFocus={() => setFocusedWord("polygamy")}
+onBlur={() => setFocusedWord(null)}
 />
 </div>
 
@@ -549,7 +559,9 @@ SHE LOOKED ME
 value={guesses[21]?.value || ""}
 onChange={guesses[21]?.onChange || (() => {})}
 correctAnswer="dead"
-clue="Completely, totally, or straight"
+clue="No longer alive"
+  onFocus={() => setFocusedWord("ignore")}
+onBlur={() => setFocusedWord(null)}
 />
 <span className={`font-black uppercase ${isLyricActive(50) ? "text-black" : "text-black/25"}`}>
 IN THE FACE LIKE YOU KIDDING ME?
@@ -561,13 +573,15 @@ I AM UNLESS YOU GON DO IT
 </p>
 <div className="flex flex-wrap items-center gap-2">
 <span className={`font-black uppercase ${isLyricActive(52) ? "text-black" : "text-black/25"}`}>
-IT AIN'T A THINK FOR THE
+IT AIN'T A THING FOR THE
 </span>
 <LyricInput
 value={guesses[22]?.value || ""}
 onChange={guesses[22]?.onChange || (() => {})}
 correctAnswer="kid"
 clue="Young person or child"
+   onFocus={() => setFocusedWord("kid")}
+onBlur={() => setFocusedWord(null)}
 />
 <span className={`font-black uppercase ${isLyricActive(52) ? "text-black" : "text-black/25"}`}>
 TO ONE TWO IT
@@ -604,36 +618,29 @@ value={guesses[11]?.value || ""}
 onChange={guesses[11]?.onChange || (() => {})}
 correctAnswer="Wife"
 clue="A spouse that is a woman"
+onFocus={() => setFocusedWord("wife")}
+onBlur={() => setFocusedWord(null)}
 />
 <span className={`font-black uppercase ${isLyricActive(58) ? "text-black" : "text-black/25"}`}></span>
 </div>
 
 <div className="flex flex-wrap items-center gap-2">
 <span className={`font-black uppercase ${isLyricActive(59) ? "text-black" : "text-black/25"}`}>
-I WOULDN'T BE OUT HERE LIVIN OUT MY
-</span>
-<LyricInput
-value={guesses[12]?.value || ""}
-onChange={guesses[12]?.onChange || (() => {})}
-correctAnswer="3rd"
-clue="Same as the previous answer"
-/>
-<span className={`font-black uppercase ${isLyricActive(59) ? "text-black" : "text-black/25"}`}>LIFE</span>
+I WOULDN'T BE OUT HERE LIVIN OUT MY 3RD LIFE</span>
 </div>
 
 <div className="flex flex-wrap items-center gap-2">
 <span className={`font-black uppercase ${isLyricActive(60) ? "text-black" : "text-black/25"}`}>
-FELL IN LOVE 3 TIMES AND THIS MY
-</span>
-<LyricInput
-value={guesses[13]?.value || ""}
-onChange={guesses[13]?.onChange || (() => {})}
-correctAnswer="3rd"
-clue="Third time's the charm"
+FELL IN </span> <LyricInput
+value={guesses[12]?.value || ""}
+onChange={guesses[12]?.onChange || (() => {})}
+correctAnswer="Love"
+clue="Deep affection, tennis score of zero"
+onFocus={() => setFocusedWord("wife")}
+onBlur={() => setFocusedWord(null)}
 />
-<span className={`font-black uppercase ${isLyricActive(60) ? "text-black" : "text-black/25"}`}>STRIKE</span>
+<span className={`font-black uppercase ${isLyricActive(60) ? "text-black" : "text-black/25"}`}>3 TIMES AND THIS MY 3RD STRIKE</span>
 </div>
-
 <div className="flex flex-wrap items-center gap-2">
 <span className={`font-black uppercase ${isLyricActive(61) ? "text-black" : "text-black/25"}`}>
 IN HER DUGOUT DIGGING HER OUT FOR THE
