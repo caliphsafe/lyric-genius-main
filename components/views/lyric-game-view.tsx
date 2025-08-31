@@ -62,12 +62,12 @@ export function LyricGameView() {
   }
 
   const guesses = [
-    { id: "guess0", value: guess0, onChange: setGuess0, correctAnswer: "bitch", clue: "What's another word for a difficult situation?", showTooltip: false },
-    { id: "guess1", value: guess1, onChange: setGuess1, correctAnswer: "through", clue: "Past tense of 'come'", showTooltip: false },
-    { id: "guess2", value: guess2, onChange: setGuess2, correctAnswer: "budden", clue: "Rhymes with 'sudden', sounds like a name", showTooltip: false },
-    { id: "guess3", value: guess3, onChange: setGuess3, correctAnswer: "buttercup", clue: "A delicate yellow flower", showTooltip: false },
+    { id: "guess0", value: guess0, onChange: setGuess0, correctAnswer: "bitch", clue: "A females dog", showTooltip: false },
+    { id: "guess1", value: guess1, onChange: setGuess1, correctAnswer: "first", clue: "Number one, before all others", showTooltip: false },
+    { id: "guess2", value: guess2, onChange: setGuess2, correctAnswer: "budden", clue: "Joe ______, 'sudden' with a B", showTooltip: false },
+    { id: "guess3", value: guess3, onChange: setGuess3, correctAnswer: "buttercup", clue: "The green Powerpuff Girl", showTooltip: false },
     { id: "guess4", value: guess4, onChange: setGuess4, correctAnswer: "butternut", clue: "Type of squash, rhymes with the previous answer", showTooltip: false },
-    { id: "guess5", value: guess5, onChange: setGuess5, correctAnswer: "friend", clue: "Someone close to you", showTooltip: false },
+    { id: "guess5", value: guess5, onChange: setGuess5, correctAnswer: "friend", clue: "Someone close to you, opposite of an enemy", showTooltip: false },
     { id: "guess6", value: guess6, onChange: setGuess6, correctAnswer: "polygamy", clue: "Marriage practice with multiple spouses", showTooltip: false },
     { id: "guess7", value: guess7, onChange: setGuess7, correctAnswer: "polygamy", clue: "Marriage practice with multiple spouses", showTooltip: false },
     { id: "guess8", value: guess8, onChange: setGuess8, correctAnswer: "3rd", clue: "Baseball reference, same number", showTooltip: false },
@@ -81,7 +81,7 @@ export function LyricGameView() {
     { id: "guess16", value: guess16, onChange: setGuess16, correctAnswer: "polygamy", clue: "Marriage practice with multiple spouses", showTooltip: false },
     { id: "guess17", value: guess17, onChange: setGuess17, correctAnswer: "polygamy", clue: "Marriage practice with multiple spouses", showTooltip: false },
     { id: "guess18", value: guess18, onChange: setGuess18, correctAnswer: "court", clue: "Basketball term for defensive pressure", showTooltip: false },
-    { id: "guess19", value: guess19, onChange: setGuess19, correctAnswer: "rug", clue: "What you cut when you're dancing", showTooltip: false },
+    { id: "guess19", value: guess19, onChange: setGuess19, correctAnswer: "rug", clue: "Floor covering, carpet piece.", showTooltip: false },
     { id: "guess20", value: guess20, onChange: setGuess20, correctAnswer: "cuddle", clue: "What you do when you snuggle close together", showTooltip: false },
     { id: "guess21", value: guess21, onChange: setGuess21, correctAnswer: "dead", clue: "Completely, totally, or straight", showTooltip: false },
     { id: "guess22", value: guess22, onChange: setGuess22, correctAnswer: "kid", clue: "Young person or child", showTooltip: false },
