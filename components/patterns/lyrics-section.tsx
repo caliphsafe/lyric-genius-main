@@ -607,20 +607,18 @@ export function LyricsSection({ verseTitle, guesses, currentTime = 0 }: LyricsSe
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(59) ? "text-black" : "text-black/25"}`}>
-              I WOULDN'T BE OUT HERE LIVIN OUT MY
-            </span>
-            <LyricInput
-              value={guesses[12]?.value || ""}
-              onChange={guesses[12]?.onChange || (() => {})}
-              correctAnswer="3rd"
-              clue="Same as the previous answer"
-            />
-            <span className={`font-black uppercase ${isLyricActive(59) ? "text-black" : "text-black/25"}`}>LIFE</span>
+              I WOULDN'T BE OUT HERE LIVIN OUT MY 3RD LIFE</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(60) ? "text-black" : "text-black/25"}`}>
-              FELL IN LOVE 3 TIMES AND THIS MY
+              FELL IN</span><LyricInput
+              value={guesses[12]?.value || ""}
+              onChange={guesses[12]?.onChange || (() => {})}
+              correctAnswer="Love"
+              clue="Deep affection, tennis score of zero"
+            />
+            <span className={`font-black uppercase ${isLyricActive(59) ? "text-black" : "text-black/25"}`}><span><3 TIMES AND THIS MY
             </span>
             <LyricInput
               value={guesses[13]?.value || ""}
