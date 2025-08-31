@@ -18,7 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        {children}
+        {/* Main wrapper with safe-area + mobile padding */}
+        <main className="flex-1 kb-safe-pb pb-mobile-24 md:pb-0">
+          {children}
+        </main>
         <Analytics />
       </body>
     </html>
