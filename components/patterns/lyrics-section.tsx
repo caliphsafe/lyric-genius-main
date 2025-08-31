@@ -119,8 +119,8 @@ return guess && guess.value.toLowerCase().trim() === answer.toLowerCase()
 }
 
 return (
-<div className="h-80 relative overflow-hidden">
-<div className="h-full overflow-y-auto pb-8 scrollbar-minimal">
+<div className="relative min-h-[60vh] md:min-h-[20rem]">
+<div className="h-full overflow-y-auto pb-24 md:pb-8 scrollbar-minimal">
 <h2 className="text-lg md:text-xl font-bold text-black mb-4">{verseTitle}</h2>
 
 <div className="flex flex-col gap-3.5 text-lg md:text-xl lg:text-2xl leading-relaxed">
@@ -736,7 +736,7 @@ COMPLETE GAME
 
 {/* Clue Alert */}
 {focusedWord && (
-<div className="absolute bottom-4 left-4 right-4 p-4 bg-black text-white rounded-lg shadow-lg z-10">
+<div   className="absolute left-4 right-4 p-4 bg-black text-white rounded-lg shadow-lg z-50"   style={{ bottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }} >
 <div className="flex items-center justify-between">
 <span className="text-sm">
 {getClueForWord(focusedWord)}
