@@ -86,7 +86,7 @@ export function LyricsSection({ verseTitle, guesses, currentTime = 0 }: LyricsSe
       "polygamy",
       "polygamy",
       "wife",
-      "3rd",
+      "love",
       "3rd",
       "3rd",
       "termite",
