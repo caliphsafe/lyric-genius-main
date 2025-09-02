@@ -125,84 +125,42 @@
 }
 
 @layer utilities {
-  /* existing stuff you already have … */
-
+  /* Minimal scrollbar */
   .scrollbar-minimal::-webkit-scrollbar { width: 4px; }
   .scrollbar-minimal::-webkit-scrollbar-track { background: transparent; }
-  .scrollbar-minimal::-webkit-scrollbar-thumb { background: rgba(0,0,0,.2); border-radius: 2px; }
-  .scrollbar-minimal::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.3); }
+  .scrollbar-minimal::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 2px; }
+  .scrollbar-minimal::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.3); }
 
-  /* animations … */
-
-  /* NEW: keep focused input clear of sticky header */
+  /* Keep focused input clear of sticky header */
   .focus-anchor { scroll-margin-top: 140px; }
   @media (min-width: 768px) {
     .focus-anchor { scroll-margin-top: 110px; }
   }
-}
 
-
-  .scrollbar-minimal::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-minimal::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
-  }
-
-  .scrollbar-minimal::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
-  }
-
-  /* Adding input animation keyframes and utilities */
+  /* Input animation keyframes and utilities */
   @keyframes fillProgress {
-    from {
-      --progress: 0%;
-    }
-    to {
-      --progress: 100%;
-    }
+    from { --progress: 0%; }
+    to   { --progress: 100%; }
   }
 
   @keyframes scaleSuccess {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    100% {
-      transform: scale(1);
-    }
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
   }
 
   @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateX(-50%) translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
   }
 
-  /* Adding smooth tooltip ease-in animation */
+  /* Smooth tooltip ease-in animation */
   @keyframes tooltipIn {
-    from {
-      opacity: 0;
-      transform: translateX(-50%) translateY(-4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
   }
 
-  .animate-fill-progress {
-    animation: fillProgress 0.8s ease-out forwards;
-  }
+  .animate-fill-progress { animation: fillProgress 0.8s ease-out forwards; }
 
   .animate-scale-success {
     background: #37db00 !important;
@@ -210,12 +168,7 @@
     animation: scaleSuccess 0.3s ease-out;
   }
 
-  .animate-fade-in {
-    animation: fadeIn 0.2s ease-out;
-  }
+  .animate-fade-in { animation: fadeIn 0.2s ease-out; }
 
-  /* Adding tooltip animation class */
-  .animate-tooltip-in {
-    animation: tooltipIn 0.2s ease-in forwards;
-  }
+  .animate-tooltip-in { animation: tooltipIn 0.2s ease-in forwards; }
 }
