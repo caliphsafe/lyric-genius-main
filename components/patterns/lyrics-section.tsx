@@ -46,7 +46,7 @@ export function LyricsSection({
     { start: 44, end: 47 }, // HER [friend] LOOK AT IS BOTH TRYNA [throuple] UP
     { start: 47, end: 50 }, // I COULD TELL THAT SHE CAN'T...
     { start: 50, end: 53 }, // I HIT IT THEN I DIPPED...
-    // Continue for chorus/verse 2...
+    // Continue with more timings for chorus, verse 2, etc.
   ]
 
   const isLyricActive = (index: number) => {
@@ -55,42 +55,38 @@ export function LyricsSection({
     return currentTime >= timing.start && currentTime <= timing.end
   }
 
-  // UPDATED to match the inputs wired below (0..32)
   const areAllInputsCorrect = () => {
     const correctAnswers = [
-      "bitch",     // 0
-      "court",     // 1
-      "through",   // 2
-      "rug",       // 3
-      "budden",    // 4
-      "buttercup", // 5
-      "butternut", // 6
-      "friend",    // 7
-      "cuddle",    // 8
-      "polygamy",  // 9
-      "sin",       // 10
-      "dead",      // 11
-      "kid",       // 12
-      "gang",      // 13
-      "adore",     // 14
-      "adhd",      // 15
-      "ignore",    // 16
-      "anaconda",  // 17
-      "twerking",  // 18
-      "squirting", // 19
-      "cursive",   // 20
-      "polygamy",  // 21
-      "sin",       // 22
-      "dead",      // 23
-      "kid",       // 24
-      "gang",      // 25
-      "wife",      // 26
-      "love",      // 27
-      "matching",  // 28
-      "hell",      // 29
-      "termite",   // 30
-      "baobab",    // 31
-      "immigrant", // 32
+      "bitch",
+      "through",
+      "budden",
+      "buttercup",
+      "butternut",
+      "friend",
+      "polygamy",
+      "polygamy",
+      "3rd",
+      "wife",
+      "love",
+      "matching",
+      "3rd",
+      "termite",
+      "birthright",
+      "polygamy",
+      "court",
+      "rug",
+      "cuddle",
+      "dead",
+      "kid",
+      "sin",
+      "gang",
+      "adore",
+      "adhd",
+      "ignore",
+      "anaconda",
+      "twerking",
+      "squirting",
+      "cursive",
     ]
 
     return correctAnswers.every((answer, index) => {
@@ -111,6 +107,7 @@ export function LyricsSection({
           ? arg.target.value
           : ""
 
+      // Call original change handler
       orig?.(next)
 
       // If this input is now correct, clear banner back to default
@@ -124,11 +121,14 @@ export function LyricsSection({
   }
 
   return (
-    <div className="h-80 relative overflow-hidden">
-      <div className="h-full overflow-y-auto pb-8 scrollbar-minimal">
-        <h2 className="text-lg md:text-xl font-bold text-black mb-4">{verseTitle}</h2>
+    // REMOVED fixed height/overflow so the page scroll handles lyrics area
+    <div className="relative">
+      <div className="pb-8">
+        {/* ~20% smaller section headings */}
+        <h2 className="text-base md:text-lg font-bold text-black mb-4">{verseTitle}</h2>
 
-        <div className="flex flex-col gap-3.5 text-lg md:text-xl lg:text-2xl leading-relaxed">
+        {/* ~20% smaller lyric text */}
+        <div className="flex flex-col gap-3.5 text-base md:text-lg lg:text-xl leading-relaxed">
           {/* VERSE 1 */}
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(0) ? "text-black" : "text-black/25"}`}>
@@ -299,7 +299,7 @@ export function LyricsSection({
           </div>
 
           {/* CHORUS */}
-          <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">CHORUS</h3>
+          <h3 className="text-base md:text-lg font-bold text-black mt-6 mb-4">CHORUS</h3>
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(18) ? "text-black" : "text-black/25"}`}>
@@ -396,7 +396,7 @@ export function LyricsSection({
           </div>
 
           {/* DIALOGUE */}
-          <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">DIALOGUE</h3>
+          <h3 className="text-base md:text-lg font-bold text-black mt-6 mb-4">DIALOGUE</h3>
           <p className={`font-black uppercase ${isLyricActive(26) ? "text-black" : "text-black/25"}`}>NAH LIKE…</p>
           <p className={`font-black uppercase ${isLyricActive(27) ? "text-black" : "text-black/25"}`}>
             NAH TO BE REAL I AIN'T GOT NO BEEF WITH MY EX WE COOL
@@ -410,7 +410,7 @@ export function LyricsSection({
           <p className={`font-black uppercase ${isLyricActive(30) ? "text-black" : "text-black/25"}`}>FOR REAL</p>
 
           {/* VERSE 2 */}
-          <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">VERSE 2</h3>
+          <h3 className="text-base md:text-lg font-bold text-black mt-6 mb-4">VERSE 2</h3>
 
           <p className={`font-black uppercase ${isLyricActive(31) ? "text-black" : "text-black/25"}`}>
             NOW I'M OUTSIDE SINGLE AS A GEORGIE
@@ -437,7 +437,7 @@ export function LyricsSection({
             I'M INN AND OUT SO THEY SAY THEY WANT MORE OF ME
           </p>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-centered gap-2">
             <span className={`font-black uppercase ${isLyricActive(34) ? "text-black" : "text-black/25"}`}>
               BUT I GOT
             </span>
@@ -555,7 +555,7 @@ export function LyricsSection({
           </div>
 
           {/* CHORUS 2 */}
-          <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">CHORUS</h3>
+          <h3 className="text-base md:text-lg font-bold text-black mt-6 mb-4">CHORUS</h3>
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(47) ? "text-black" : "text-black/25"}`}>
@@ -652,7 +652,7 @@ export function LyricsSection({
           </div>
 
           {/* DIALOGUE 2 */}
-          <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">DIALOGUE</h3>
+          <h3 className="text-base md:text-lg font-bold text-black mt-6 mb-4">DIALOGUE</h3>
           <p className={`font-black uppercase ${isLyricActive(55) ? "text-black" : "text-black/25"}`}>
             NAH REALLY THOUGH I AIN'T GOT NO PROBLEMS WITH MY EXES
           </p>
@@ -664,7 +664,7 @@ export function LyricsSection({
           </p>
 
           {/* VERSE 3 */}
-          <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">VERSE 3</h3>
+          <h3 className="text-base md:text-lg font-bold text-black mt-6 mb-4">VERSE 3</h3>
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(58) ? "text-black" : "text-black/25"}`}>
@@ -673,7 +673,7 @@ export function LyricsSection({
             <LyricInput
               value={guesses[26]?.value || ""}
               onChange={wrapOnChange(guesses[26]?.onChange, "wife")}
-              correctAnswer="wife"
+              correctAnswer="Wife"
               clue={guesses[26]?.clue}
               onFocus={onFocusClue(guesses[26]?.clue)}
               onBlur={() => setFocusedWord(null)}
@@ -694,7 +694,7 @@ export function LyricsSection({
             <LyricInput
               value={guesses[27]?.value || ""}
               onChange={wrapOnChange(guesses[27]?.onChange, "love")}
-              correctAnswer="love"
+              correctAnswer="Love"
               clue={guesses[27]?.clue}
               onFocus={onFocusClue(guesses[27]?.clue)}
               onBlur={() => setFocusedWord(null)}
@@ -715,11 +715,11 @@ export function LyricsSection({
               WE IN THE MAKINGS OF A
             </span>
             <LyricInput
-              value={guesses[28]?.value || ""}
-              onChange={wrapOnChange(guesses[28]?.onChange, "matching")}
+              value={guesses[12]?.value || ""}
+              onChange={wrapOnChange(guesses[12]?.onChange, "matching")}
               correctAnswer="matching"
-              clue={guesses[28]?.clue}
-              onFocus={onFocusClue(guesses[28]?.clue)}
+              clue={guesses[12]?.clue}
+              onFocus={onFocusClue(guesses[12]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
@@ -739,12 +739,12 @@ export function LyricsSection({
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(66) ? "text-black" : "text-black/25"}`}>
-              THAT'S A
+              THAT'S A 
             </span>
             <LyricInput
               value={guesses[29]?.value || ""}
               onChange={wrapOnChange(guesses[29]?.onChange, "hell")}
-              correctAnswer="hell"
+              correctAnswer="Wife"
               clue={guesses[29]?.clue}
               onFocus={onFocusClue(guesses[29]?.clue)}
               onBlur={() => setFocusedWord(null)}
@@ -754,19 +754,17 @@ export function LyricsSection({
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={`font-black uppercase ${isLyricActive(67) ? "text-black" : "text-black/25"}`}>
-              BUT I HEARD SHE EAT THE WOOD LIKE A
-            </span>
-            <LyricInput
-              value={guesses[30]?.value || ""}
-              onChange={wrapOnChange(guesses[30]?.onChange, "termite")}
-              correctAnswer="termite"
-              clue={guesses[30]?.clue}
-              onFocus={onFocusClue(guesses[30]?.clue)}
-              onBlur={() => setFocusedWord(null)}
-            />
-          </div>
+          <p className={`font-black uppercase ${isLyricActive(67) ? "text-black" : "text-black/25"}`}>
+            BUT I HEARD SHE EAT THE WOOD LIKE A
+          </p>
+          <LyricInput
+            value={guesses[30]?.value || ""}
+            onChange={wrapOnChange(guesses[30]?.onChange, "termite")}
+            correctAnswer="termite"
+            clue={guesses[30]?.clue}
+            onFocus={onFocusClue(guesses[30]?.clue)}
+            onBlur={() => setFocusedWord(null)}
+          />
 
           <p className={`font-black uppercase ${isLyricActive(68) ? "text-black" : "text-black/25"}`}>
             YIKES, I HAD TO FIND OUT WHAT THE SLURP LIKE
@@ -777,11 +775,11 @@ export function LyricsSection({
               PUT THE
             </span>
             <LyricInput
-              value={guesses[31]?.value || ""}
-              onChange={wrapOnChange(guesses[31]?.onChange, "baobab")}
+              value={guesses[16]?.value || ""}
+              onChange={wrapOnChange(guesses[16]?.onChange, "baobab")}
               correctAnswer="baobab"
-              clue={guesses[31]?.clue}
-              onFocus={onFocusClue(guesses[31]?.clue)}
+              clue={guesses[16]?.clue}
+              onFocus={onFocusClue(guesses[16]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(69) ? "text-black" : "text-black/25"}`}>
@@ -806,7 +804,7 @@ export function LyricsSection({
             <LyricInput
               value={guesses[32]?.value || ""}
               onChange={wrapOnChange(guesses[32]?.onChange, "immigrant")}
-              correctAnswer="immigrant"
+              correctAnswer="baobab"
               clue={guesses[32]?.clue}
               onFocus={onFocusClue(guesses[32]?.clue)}
               onBlur={() => setFocusedWord(null)}
@@ -826,6 +824,7 @@ export function LyricsSection({
               }`}
               onClick={() => {
                 if (areAllInputsCorrect()) {
+                  // Handle game completion
                   console.log("Game completed!")
                 }
               }}
@@ -835,12 +834,6 @@ export function LyricsSection({
           </div>
         </div>
       </div>
-
-      {/* Clue overlay removed previously; banner now shows active clue */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-        style={{ background: "linear-gradient(to top, #FFFF64, transparent)" }}
-      ></div>
     </div>
   )
 }
