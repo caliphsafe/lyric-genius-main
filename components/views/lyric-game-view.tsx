@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { GameHeader } from "@/components/patterns/game-header"
-import { LyricsSection } from "@/components/patterns/lyrics-section"
+// CHANGED: point to the actual file path you shared
+import { LyricsSection } from "@/components/sections/lyrics-section"
 import { AudioPlayer } from "@/components/patterns/audio-player"
 
 export function LyricGameView() {
@@ -42,6 +43,9 @@ export function LyricGameView() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0) // in seconds
   const [duration] = useState(120) // 2:00 in seconds
+
+  // NEW: drives banner text in GameHeader
+  const [activeClue, setActiveClue] = useState<string | null>(null)
 
   useEffect(() => {
     let interval: NodeJS.Timeout
@@ -134,12 +138,20 @@ export function LyricGameView() {
           artist="Caliph"
           duration="3:40"
           albumArt="/polygamy-album.png"
+          // NEW: show clue text in the banner when focused
+          activeClue={activeClue}
           onStartGame={handleStartGame}
         />
 
         <div className="mb-8" />
 
-        <LyricsSection verseTitle="VERSE 1" guesses={guesses} currentTime={currentTime} />
+        <LyricsSection
+          verseTitle="VERSE 1"
+          guesses={guesses}
+          currentTime={currentTime}
+          // NEW: update banner clue from focused inputs
+          onActiveClueChange={setActiveClue}
+        />
 
         <div className="mt-8">
           <AudioPlayer
