@@ -124,7 +124,7 @@ export function LyricGameView() {
   const progress = (currentTime / duration) * 100
 
   return (
-    <div className="min-h-[100svh] flex flex-col" style={{ backgroundColor: "#FFFF64" }}>
+    <div className="h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: "#FFFF64" }}>
       {/* HEADER: logo + active clue banner (kept static, doesn’t scroll) */}
       {/* Only the middle pane scrolls, so this stays visible regardless of keyboard */}
       <div className="shrink-0 z-40 w-full" style={{ backgroundColor: "#FFFF64" }}>
@@ -138,7 +138,7 @@ export function LyricGameView() {
       </div>
 
       {/* LYRICS (the only scrollable region) */}
-      <div className="flex-1 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 pb-36 scrollbar-minimal">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 pb-36 scrollbar-minimal">
         <LyricsSection
           verseTitle="VERSE 1"
           guesses={guesses}
