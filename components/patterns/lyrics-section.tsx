@@ -33,7 +33,7 @@ export function LyricsSection({
     { start: 5, end: 8 }, // I'M IN THIS BITCH TRYNA RUN IT UP
     { start: 8, end: 11 }, // LIKE IT'S A FULL [court] PRESS...
     { start: 11, end: 14 }, // I GOT TWO 10S WITH ME...
-    { start: 14, end: 17 }, // SHORTY CAME [through] AND...
+    { start: 14, end: 17 }, // SHORTY CAME [first] AND...
     { start: 17, end: 20 }, // NOW SHE GOT HER MOUTH ON IT...
     { start: 20, end: 23 }, // MET HER AT A PARTY...
     { start: 23, end: 26 }, // UNH, BUT FUCK IT NOW...
@@ -175,7 +175,7 @@ export function LyricsSection({
             <LyricInput
               value={guesses[1]?.value || ""}
               onChange={wrapOnChange(guesses[1]?.onChange, "through")}
-              correctAnswer="through"
+              correctAnswer="first"
               clue={guesses[1]?.clue}
               onFocus={onFocusClue(guesses[1]?.clue)}
               onBlur={() => setFocusedWord(null)}
@@ -272,7 +272,7 @@ export function LyricsSection({
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(15) ? "text-black" : "text-black/25"}`}>
-              LOOK AT IS BOTH TRYNA THROUPLE UP
+              LOOKIN AT US BOTH TRYNA THROUPLE UP
             </span>
           </div>
 
@@ -431,7 +431,7 @@ export function LyricsSection({
           </div>
 
           <p className={`font-black uppercase ${isLyricActive(33) ? "text-black" : "text-black/25"}`}>
-            I'M INN AND OUT SO THEY SAY THEY WANT MORE OF ME
+            I'M IN AND OUT SO THEY SAY THEY WANT MORE OF ME
           </p>
 
           <div className="flex flex-wrap items-centered gap-2">
@@ -554,23 +554,23 @@ export function LyricsSection({
           {/* CHORUS 2 */}
           <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">CHORUS</h3>
 
+          
+            <p className={`font-black uppercase ${isLyricActive(47) ? "text-black" : "text-black/25"}`}>
+              BABY I'M A PRODUCT OF POLYGAMY
+            </p>
+           
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`font-black uppercase ${isLyricActive(47) ? "text-black" : "text-black/25"}`}>
-              BABY I'M A PRODUCT OF
-            </span>
-            <LyricInput
+            p className={`font-black uppercase ${isLyricActive(48) ? "text-black" : "text-black/25"}`}>
+            LIKE YOU GON HAVE TO LEARN TO  <LyricInput
               value={guesses[10]?.value || ""}
-              onChange={wrapOnChange(guesses[10]?.onChange, "polygamy")}
-              correctAnswer="polygamy"
+              onChange={wrapOnChange(guesses[10]?.onChange, "share")}
+              correctAnswer="share"
               clue={guesses[10]?.clue}
               onFocus={onFocusClue(guesses[10]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
-          </div>
-
-          <p className={`font-black uppercase ${isLyricActive(48) ? "text-black" : "text-black/25"}`}>
-            LIKE YOU GON HAVE TO LEARN TO SHARE IF YOU INTO ME
-          </p>
+           IF YOU INTO ME
+          </p> </div>
           <p className={`font-black uppercase ${isLyricActive(49) ? "text-black" : "text-black/25"}`}>
             IF I DO THIS SHIT RIGHT IT AIN'T A SIN TO ME
           </p>
@@ -684,11 +684,11 @@ export function LyricsSection({
               WE IN THE MAKINGS OF A{" "}
             </span>
             <LyricInput
-              value={guesses[12]?.value || ""}
-              onChange={wrapOnChange(guesses[12]?.onChange, "matching")}
+              value={guesses[14]?.value || ""}
+              onChange={wrapOnChange(guesses[14]?.onChange, "matching")}
               correctAnswer="Matching"
-              clue={guesses[12]?.clue}
-              onFocus={onFocusClue(guesses[12]?.clue)}
+              clue={guesses[14]?.clue}
+              onFocus={onFocusClue(guesses[13]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
@@ -714,10 +714,10 @@ export function LyricsSection({
               BUT I HEARD SHE EAT THE WOOD LIKE A
             </span>
             <LyricInput
-              value={guesses[15]?.value || ""}
-              onChange={wrapOnChange(guesses[15]?.onChange, "termite")}
+              value={guesses[13]?.value || ""}
+              onChange={wrapOnChange(guesses[13]?.onChange, "termite")}
               correctAnswer="termite"
-              clue={guesses[15]?.clue}
+              clue={guesses[13]?.clue}
               onFocus={onFocusClue(guesses[15]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
@@ -732,8 +732,8 @@ export function LyricsSection({
               PUT THE BAOBAB IN HER MOUTH LIKE A
             </span>
             <LyricInput
-              value={guesses[16]?.value || ""}
-              onChange={wrapOnChange(guesses[16]?.onChange, "birthright")}
+              value={guesses[15]?.value || ""}
+              onChange={wrapOnChange(guesses[15]?.onChange, "birthright")}
               correctAnswer="birthright"
               clue={guesses[16]?.clue}
               onFocus={onFocusClue(guesses[16]?.clue)}
