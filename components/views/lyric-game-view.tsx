@@ -135,14 +135,7 @@ export function LyricGameView() {
             <img src="/lyric-genius-logo.svg" alt="Lyric Genius" className="w-20 h-auto" />
           </div>
 
-          <GameHeader
-            albumTitle="Polygamy"
-            artist="Caliph"
-            duration="3:40"
-            albumArt="/polygamy-album.png"
-            activeClue={activeClue} // show clue in banner
-            onStartGame={handleStartGame}
-          />
+          <GameHeader activeClue={activeClue} />
         </div>
         <div className="border-t border-black/10" />
       </div>
@@ -171,7 +164,11 @@ export function LyricGameView() {
               onPlayPause={handlePlayPause}
               onNext={handleNext}
               onSeek={handleSeek}
+              albumTitle="Polygamy"
+              artist="Caliph"
+              albumArt="/polygamy-album.png"
             />
+
           </div>
         </div>
 
