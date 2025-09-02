@@ -15,7 +15,7 @@ interface LyricsSection {
   verseTitle: string
   guesses: LyricGuess[]
   currentTime?: number
-  // NEW: lets parent (page/header) update the banner text
+  // lets parent (header) update the banner text
   onActiveClueChange?: (clue: string | null) => void
 }
 
@@ -23,7 +23,7 @@ export function LyricsSection({
   verseTitle,
   guesses,
   currentTime = 0,
-  onActiveClueChange, // NEW
+  onActiveClueChange,
 }: LyricsSection) {
   const [focusedWord, setFocusedWord] = useState<string | null>(null)
 
@@ -33,7 +33,7 @@ export function LyricsSection({
     { start: 5, end: 8 }, // I'M IN THIS BITCH TRYNA RUN IT UP
     { start: 8, end: 11 }, // LIKE IT'S A FULL [court] PRESS...
     { start: 11, end: 14 }, // I GOT TWO 10S WITH ME...
-    { start: 14, end: 17 }, // SHORTY CAME [first] AND...
+    { start: 14, end: 17 }, // SHORTY CAME [through] AND...
     { start: 17, end: 20 }, // NOW SHE GOT HER MOUTH ON IT...
     { start: 20, end: 23 }, // MET HER AT A PARTY...
     { start: 23, end: 26 }, // UNH, BUT FUCK IT NOW...
@@ -43,10 +43,9 @@ export function LyricsSection({
     { start: 35, end: 38 }, // SO WE SQUASHED IT [butternut]
     { start: 38, end: 41 }, // MEANWHILE SHORTY LOOKIN LIKE...
     { start: 41, end: 44 }, // I LOOKED BACK LIKE WHATSUP...
-    { start: 44, end: 47 }, // HER [friend] LOOK AT IS BOTH TRYNA [throuple] UP
+    { start: 44, end: 47 }, // HER [friend] LOOKIN AT US BOTH TRYNA THROUPLE UP
     { start: 47, end: 50 }, // I COULD TELL THAT SHE CAN'T...
     { start: 50, end: 53 }, // I HIT IT THEN I DIPPED...
-    // Continue with more timings for chorus, verse 2, etc.
   ]
 
   const isLyricActive = (index: number) => {
@@ -95,7 +94,7 @@ export function LyricsSection({
     })
   }
 
-  // Helpers: normalize, safe wrapper for onChange (handles string or event), and focus->clue
+  // helpers
   const normalized = (s: string) => s.trim().toLowerCase()
   const wrapOnChange =
     (orig: ((value: string) => void) | undefined, correct?: string) =>
@@ -107,10 +106,8 @@ export function LyricsSection({
           ? arg.target.value
           : ""
 
-      // Call original change handler
       orig?.(next)
 
-      // If this input is now correct, clear banner back to default
       if (correct && normalized(next) === normalized(correct)) {
         onActiveClueChange?.(null)
       }
@@ -175,7 +172,7 @@ export function LyricsSection({
             <LyricInput
               value={guesses[1]?.value || ""}
               onChange={wrapOnChange(guesses[1]?.onChange, "through")}
-              correctAnswer="first"
+              correctAnswer="through"
               clue={guesses[1]?.clue}
               onFocus={onFocusClue(guesses[1]?.clue)}
               onBlur={() => setFocusedWord(null)}
@@ -434,7 +431,7 @@ export function LyricsSection({
             I'M IN AND OUT SO THEY SAY THEY WANT MORE OF ME
           </p>
 
-          <div className="flex flex-wrap items-centered gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(34) ? "text-black" : "text-black/25"}`}>
               BUT I GOT
             </span>
@@ -554,23 +551,23 @@ export function LyricsSection({
           {/* CHORUS 2 */}
           <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">CHORUS</h3>
 
-          
-            <p className={`font-black uppercase ${isLyricActive(47) ? "text-black" : "text-black/25"}`}>
-              BABY I'M A PRODUCT OF POLYGAMY
-            </p>
-           
           <div className="flex flex-wrap items-center gap-2">
-            p className={`font-black uppercase ${isLyricActive(48) ? "text-black" : "text-black/25"}`}>
-            LIKE YOU GON HAVE TO LEARN TO  <LyricInput
+            <span className={`font-black uppercase ${isLyricActive(47) ? "text-black" : "text-black/25"}`}>
+              BABY I'M A PRODUCT OF
+            </span>
+            <LyricInput
               value={guesses[10]?.value || ""}
-              onChange={wrapOnChange(guesses[10]?.onChange, "share")}
-              correctAnswer="share"
+              onChange={wrapOnChange(guesses[10]?.onChange, "polygamy")}
+              correctAnswer="polygamy"
               clue={guesses[10]?.clue}
               onFocus={onFocusClue(guesses[10]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
-           IF YOU INTO ME
-          </p> </div>
+          </div>
+
+          <p className={`font-black uppercase ${isLyricActive(48) ? "text-black" : "text-black/25"}`}>
+            LIKE YOU GON HAVE TO LEARN TO SHARE IF YOU INTO ME
+          </p>
           <p className={`font-black uppercase ${isLyricActive(49) ? "text-black" : "text-black/25"}`}>
             IF I DO THIS SHIT RIGHT IT AIN'T A SIN TO ME
           </p>
@@ -620,18 +617,6 @@ export function LyricsSection({
             SWOOSH GANG ON HER LIKE I HAD TO JUST DO IT
           </p>
 
-          {/* DIALOGUE 2 */}
-          <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">DIALOGUE</h3>
-          <p className={`font-black uppercase ${isLyricActive(55) ? "text-black" : "text-black/25"}`}>
-            NAH REALLY THOUGH I AIN'T GOT NO PROBLEMS WITH MY EXES
-          </p>
-          <p className={`font-black uppercase ${isLyricActive(56) ? "text-black" : "text-black/25"}`}>
-            BUT WHEN I LEAVE THEY DO GO THROUGH IT THOUGH, FACTS
-          </p>
-          <p className={`font-black uppercase ${isLyricActive(57) ? "text-black" : "text-black/25"}`}>
-            DO I MAKE YOU HORNY BABY?
-          </p>
-
           {/* VERSE 3 */}
           <h3 className="text-lg md:text-xl font-bold text-black mt-6 mb-4">VERSE 3</h3>
 
@@ -642,12 +627,11 @@ export function LyricsSection({
             <LyricInput
               value={guesses[11]?.value || ""}
               onChange={wrapOnChange(guesses[11]?.onChange, "wife")}
-              correctAnswer="Wife"
+              correctAnswer="wife"
               clue={guesses[11]?.clue}
               onFocus={onFocusClue(guesses[11]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
-            <span className={`font-black uppercase ${isLyricActive(58) ? "text-black" : "text-black/25"}`}></span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -663,7 +647,7 @@ export function LyricsSection({
             <LyricInput
               value={guesses[12]?.value || ""}
               onChange={wrapOnChange(guesses[12]?.onChange, "love")}
-              correctAnswer="Love"
+              correctAnswer="love"
               clue={guesses[12]?.clue}
               onFocus={onFocusClue(guesses[12]?.clue)}
               onBlur={() => setFocusedWord(null)}
@@ -684,11 +668,11 @@ export function LyricsSection({
               WE IN THE MAKINGS OF A{" "}
             </span>
             <LyricInput
-              value={guesses[14]?.value || ""}
-              onChange={wrapOnChange(guesses[14]?.onChange, "matching")}
-              correctAnswer="Matching"
-              clue={guesses[14]?.clue}
-              onFocus={onFocusClue(guesses[13]?.clue)}
+              value={guesses[12]?.value || ""} // keep same index pairing as your original
+              onChange={wrapOnChange(guesses[12]?.onChange, "matching")}
+              correctAnswer="matching"
+              clue={guesses[12]?.clue}
+              onFocus={onFocusClue(guesses[12]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
@@ -718,7 +702,7 @@ export function LyricsSection({
               onChange={wrapOnChange(guesses[13]?.onChange, "termite")}
               correctAnswer="termite"
               clue={guesses[13]?.clue}
-              onFocus={onFocusClue(guesses[15]?.clue)}
+              onFocus={onFocusClue(guesses[13]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -735,8 +719,8 @@ export function LyricsSection({
               value={guesses[15]?.value || ""}
               onChange={wrapOnChange(guesses[15]?.onChange, "birthright")}
               correctAnswer="birthright"
-              clue={guesses[16]?.clue}
-              onFocus={onFocusClue(guesses[16]?.clue)}
+              clue={guesses[15]?.clue}
+              onFocus={onFocusClue(guesses[15]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -764,7 +748,6 @@ export function LyricsSection({
               }`}
               onClick={() => {
                 if (areAllInputsCorrect()) {
-                  // Handle game completion
                   console.log("Game completed!")
                 }
               }}
@@ -775,7 +758,7 @@ export function LyricsSection({
         </div>
       </div>
 
-      {/* Clue overlay removed previously; banner now shows active clue */}
+      {/* Clue overlay removed; banner now shows active clue */}
       <div
         className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
         style={{ background: "linear-gradient(to top, #FFFF64, transparent)" }}
