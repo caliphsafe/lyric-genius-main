@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { GameHeader } from "@/components/patterns/game-header"
 // CHANGED: point to the actual file path you shared
-import { LyricsSection } from "@/components/sections/lyrics-section"
+import { LyricsSection } from "@/components/patterns/lyrics-section"
 import { AudioPlayer } from "@/components/patterns/audio-player"
 
 export function LyricGameView() {
