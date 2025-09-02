@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { GameHeader } from "@/components/patterns/game-header"
-// CHANGED: point to the actual file path you shared
 import { LyricsSection } from "@/components/patterns/lyrics-section"
 import { AudioPlayer } from "@/components/patterns/audio-player"
 
@@ -26,36 +25,35 @@ export function LyricGameView() {
   const [guess16, setGuess16] = useState("")
   const [guess17, setGuess17] = useState("")
   const [guess18, setGuess18] = useState("")
-  const [guess19, setGuess19] = useState("") // Adding new guess state for "rug" input
-  const [guess20, setGuess20] = useState("") // Adding new guess state for "cuddle" input
-  const [guess21, setGuess21] = useState("") // Adding new guess state for "dead" input
-  const [guess22, setGuess22] = useState("") // Adding new guess state for "kid" input
-  const [guess23, setGuess23] = useState("") // Adding new guess state for "sin" input
-  const [guess24, setGuess24] = useState("") // Adding new guess state for "gang" input
-  const [guess25, setGuess25] = useState("") // Adding new guess state for "adore" input
-  const [guess26, setGuess26] = useState("") // Adding new guess state for "adhd" input
-  const [guess27, setGuess27] = useState("") // Adding new guess state for "ignore" input
-  const [guess28, setGuess28] = useState("") // Adding new guess state for "anaconda" input
-  const [guess29, setGuess29] = useState("") // Adding new guess state for "twerking" input
-  const [guess30, setGuess30] = useState("") // Adding new guess state for "squirting" input
-  const [guess31, setGuess31] = useState("") // Adding new guess state for "cursive" input
+  const [guess19, setGuess19] = useState("") // rug
+  const [guess20, setGuess20] = useState("") // cuddle
+  const [guess21, setGuess21] = useState("") // dead
+  const [guess22, setGuess22] = useState("") // kid
+  const [guess23, setGuess23] = useState("") // sin
+  const [guess24, setGuess24] = useState("") // gang
+  const [guess25, setGuess25] = useState("") // adore
+  const [guess26, setGuess26] = useState("") // adhd
+  const [guess27, setGuess27] = useState("") // ignore
+  const [guess28, setGuess28] = useState("") // anaconda
+  const [guess29, setGuess29] = useState("") // twerking
+  const [guess30, setGuess30] = useState("") // squirting
+  const [guess31, setGuess31] = useState("") // cursive
+  const [guess32, setGuess32] = useState("") // NEW: immigrant
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0) // in seconds
   const [duration] = useState(120) // 2:00 in seconds
 
-  // NEW: drives banner text in GameHeader
+  // drives banner text in GameHeader
   const [activeClue, setActiveClue] = useState<string | null>(null)
 
   useEffect(() => {
     let interval: NodeJS.Timeout
-
     if (isPlaying && currentTime < duration) {
       interval = setInterval(() => {
         setCurrentTime((prev) => Math.min(prev + 1, duration))
       }, 1000)
     }
-
     return () => clearInterval(interval)
   }, [isPlaying, currentTime, duration])
 
@@ -97,17 +95,15 @@ export function LyricGameView() {
     { id: "guess28", value: guess28, onChange: setGuess28, correctAnswer: "matching", clue: "Coordinating, colors / clothes that go together", showTooltip: false },
     { id: "guess29", value: guess29, onChange: setGuess29, correctAnswer: "matching", clue: "The opposite of heaven, where sinners go in religion", showTooltip: false },
     { id: "guess30", value: guess30, onChange: setGuess30, correctAnswer: "termite", clue: "A small bug that is known for eating through wood", showTooltip: false },
-    { id: "guess31", value: guess31, onChange: setGuess31, correctAnswer: "baobab", clue: "the magnificent African 'Tree of Life' known for its enormous, water-storing trunks and nutritious fruit", showTooltip: false },   
-    { id: "guess32", value: guess32, onChange: setGuess32, correctAnswer: "immigrant", clue: "A person who comes to live permanently in a foreign country", showTooltip: false },   
+    { id: "guess31", value: guess31, onChange: setGuess31, correctAnswer: "baobab", clue: "the magnificent African 'Tree of Life' known for its enormous, water-storing trunks and nutritious fruit", showTooltip: false },
+    { id: "guess32", value: guess32, onChange: setGuess32, correctAnswer: "immigrant", clue: "A person who comes to live permanently in a foreign country", showTooltip: false },
   ]
 
   const handleStartGame = () => {
     console.log("[v0] Game started")
   }
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying)
-  }
+  const handlePlayPause = () => setIsPlaying(!isPlaying)
 
   const handlePrevious = () => {
     setCurrentTime(0)
@@ -139,7 +135,6 @@ export function LyricGameView() {
           artist="Caliph"
           duration="3:40"
           albumArt="/polygamy-album.png"
-          // NEW: show clue text in the banner when focused
           activeClue={activeClue}
           onStartGame={handleStartGame}
         />
@@ -150,7 +145,6 @@ export function LyricGameView() {
           verseTitle="VERSE 1"
           guesses={guesses}
           currentTime={currentTime}
-          // NEW: update banner clue from focused inputs
           onActiveClueChange={setActiveClue}
         />
 
