@@ -48,13 +48,11 @@ export function LyricGameView() {
 
   useEffect(() => {
     let interval: NodeJS.Timeout
-
     if (isPlaying && currentTime < duration) {
       interval = setInterval(() => {
         setCurrentTime((prev) => Math.min(prev + 1, duration))
       }, 1000)
     }
-
     return () => clearInterval(interval)
   }, [isPlaying, currentTime, duration])
 
@@ -126,22 +124,20 @@ export function LyricGameView() {
   const progress = (currentTime / duration) * 100
 
   return (
-    {/* CHANGED: removed `overflow-hidden` to allow sticky/fixed siblings to work correctly */}
     <div className="min-h-[100svh] flex flex-col" style={{ backgroundColor: "#FFFF64" }}>
       {/* HEADER: logo + active clue banner (kept static, doesn’t scroll) */}
-      {/* CHANGED: from `sticky top-0` to `shrink-0` since only the middle pane scrolls */}
+      {/* Only the middle pane scrolls, so this stays visible regardless of keyboard */}
       <div className="shrink-0 z-40 w-full" style={{ backgroundColor: "#FFFF64" }}>
         <div className="mx-auto max-w-[1024px] px-4 pt-4 pb-3">
           <div className="flex justify-center mb-3">
             <img src="/lyric-genius-logo.svg" alt="Lyric Genius" className="w-20 h-auto" />
           </div>
-
           <GameHeader activeClue={activeClue} />
         </div>
         <div className="border-t border-black/10" />
       </div>
 
-      {/* LYRICS: the only scrollable region */}
+      {/* LYRICS (the only scrollable region) */}
       <div className="flex-1 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 pb-36 scrollbar-minimal">
         <LyricsSection
           verseTitle="VERSE 1"
@@ -151,8 +147,7 @@ export function LyricGameView() {
         />
       </div>
 
-      {/* PLAYER + FOOTER: fixed at bottom of the layout */}
-      {/* CHANGED: from `sticky bottom-0` to `shrink-0` for the non-scrolling layout */}
+      {/* PLAYER + FOOTER (non-scrolling bottom) */}
       <div className="shrink-0 z-40 w-full">
         <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
           <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3 border-t border-black/10">
