@@ -2,14 +2,12 @@
 
 import { AlbumCard } from "@/components/patterns/album-card"
 
-export const DEFAULT_BANNER = "GUESS THE MISSING LYRICS & WIN A PRIZE"
-
 interface GameHeaderProps {
   albumTitle: string
   artist: string
   duration: string
   albumArt: string
-  // NEW: when set, replaces the banner text while the user is guessing
+  /** NEW: shows clue text in the banner when active */
   activeClue?: string | null
 }
 
@@ -21,20 +19,24 @@ export function GameHeader({
   activeClue,
 }: GameHeaderProps) {
   return (
-    <div className="space-y-6">
-      <AlbumCard
-        title={albumTitle}
-        artist={artist}
-        duration={duration}
-        albumArt={albumArt}
-        altText={`${albumTitle} album cover`}
-      />
+    <div className="space-y-4">
+      {/* SCALE DOWN THE SONG CARD ~60% TO PRIORITIZE LYRICS SPACE */}
+      <div className="scale-[0.6] md:scale-[0.75] origin-top mx-auto">
+        <AlbumCard
+          title={albumTitle}
+          artist={artist}
+          duration={duration}
+          albumArt={albumArt}
+          altText={`${albumTitle} album cover`}
+        />
+      </div>
 
+      {/* CLUE / DEFAULT BANNER (unchanged styles except content is dynamic) */}
       <div
-        className="w-full bg-white text-black font-bold text-sm py-4 border-2 border-black text-center"
+        className="w-full bg-white text-black font-bold text-xs md:text-sm py-3 md:py-4 border-2 border-black text-center"
         style={{ borderRadius: "12px" }}
       >
-        {activeClue ?? DEFAULT_BANNER}
+        {activeClue ? activeClue : "GUESS THE MISSING LYRICS & WIN A PRIZE"}
       </div>
     </div>
   )
