@@ -49,8 +49,9 @@ export function LyricInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim()) {
+      // Validate but DO NOT blur — keeps the viewport from jumping
       validateAnswer()
-      inputRef.current?.blur()
+      // inputRef.current?.blur()  // ❌ removed to prevent scroll jump
     }
   }
 
@@ -59,20 +60,17 @@ export function LyricInput({
 
     setState("checking")
 
-    // Clear any existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
 
-    // Simulate loading animation duration
     timeoutRef.current = setTimeout(() => {
       const isCorrect = value.trim().toLowerCase() === correctAnswer.toLowerCase()
       setState(isCorrect ? "correct" : "incorrect")
 
       if (isCorrect) {
-        // Scale animation duration
         setTimeout(() => {
-          // Animation complete, maintain correct state
+          // keep correct state; do not change focus
         }, 300)
       } else {
         setTimeout(() => {
@@ -111,30 +109,15 @@ export function LyricInput({
   const getBackgroundStyle = () => {
     switch (state) {
       case "checking":
-        return {
-          background: "rgba(0, 0, 0, 0.06)",
-          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)",
-        }
+        return { background: "rgba(0, 0, 0, 0.06)", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
       case "correct":
-        return {
-          background: "#37DB00",
-          boxShadow: "0 0 0 1px #37DB00",
-        }
+        return { background: "#37DB00", boxShadow: "0 0 0 1px #37DB00" }
       case "incorrect":
-        return {
-          background: "#FF4043",
-          boxShadow: "0 0 0 1px #FF4043",
-        }
+        return { background: "#FF4043", boxShadow: "0 0 0 1px #FF4043" }
       case "focused":
-        return {
-          background: "#FFFFFF",
-          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)",
-        }
+        return { background: "#FFFFFF", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
       default:
-        return {
-          background: "rgba(0, 0, 0, 0.06)",
-          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)",
-        }
+        return { background: "rgba(0, 0, 0, 0.06)", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
     }
   }
 
@@ -148,13 +131,12 @@ export function LyricInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className={`${getInputStyles()} ${className} ${state === "correct" ? "!opacity-100" : ""}`}
+          className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
           style={getBackgroundStyle()}
           placeholder={placeholder}
           disabled={state === "checking" || state === "correct"}
         />
 
-        {/* Loading animation overlay */}
         {state === "checking" && (
           <div
             className="absolute inset-0 rounded-xl animate-fill-progress"
@@ -165,8 +147,6 @@ export function LyricInput({
           />
         )}
       </div>
-
-
     </div>
   )
 }
