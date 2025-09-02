@@ -125,10 +125,22 @@
 }
 
 @layer utilities {
-  /* Adding minimal scroll indicator without track */
-  .scrollbar-minimal::-webkit-scrollbar {
-    width: 4px;
+  /* existing stuff you already have … */
+
+  .scrollbar-minimal::-webkit-scrollbar { width: 4px; }
+  .scrollbar-minimal::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-minimal::-webkit-scrollbar-thumb { background: rgba(0,0,0,.2); border-radius: 2px; }
+  .scrollbar-minimal::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.3); }
+
+  /* animations … */
+
+  /* NEW: keep focused input clear of sticky header */
+  .focus-anchor { scroll-margin-top: 140px; }
+  @media (min-width: 768px) {
+    .focus-anchor { scroll-margin-top: 110px; }
   }
+}
+
 
   .scrollbar-minimal::-webkit-scrollbar-track {
     background: transparent;
