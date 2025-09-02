@@ -55,36 +55,6 @@ export function LyricsSection({
     return currentTime >= timing.start && currentTime <= timing.end
   }
 
-  const getClueForWord = (word: string) => {
-    const wordClues: Record<string, string> = {
-      "bitch": "A female dog",
-      "through": "Number one, before all others",
-      "budden": "Joe ______, 'sudden' with a B",
-      "buttercup": "The green Powerpuff Girl",
-      "butternut": "Type of squash, rhymes with the previous answer",
-      "friend": "Someone close to you, opposite of an enemy",
-      "polygamy": "The title of this song, multiple spouses",
-      "court": "Where people play basketball or get sued",
-      "rug": "Floor covering, carpet piece",
-      "cuddle": "Hugging in bed",
-      "dead": "No longer alive",
-      "kid": "A child, a baby goat",
-      "sin": "What you commit when you do something wrong",
-      "gang": "A group of criminals, street crew",
-      "adore": "To love or admire greatly",
-      "adhd": "Acronym for Attention-deficit/hyperactivity disorder",
-      "ignore": "To pay no attention to, brush off",
-      "anaconda": "An extremely large type of snake",
-      "twerking": "Popular dance women do, shaking their rear end",
-      "squirting": "To eject liquid in a stream",
-      "cursive": "Joined-up handwriting style, the opposite of print writing",
-      "wife": "A spouse that is a woman",
-      "love": "Deep affection, tennis score of zero",
-      "matching": "Coordinating, colors or clothes that go together"
-    }
-    return wordClues[word] || "Enter a word to see the clue"
-  }
-
   const areAllInputsCorrect = () => {
     const correctAnswers = [
       "bitch",
@@ -107,16 +77,16 @@ export function LyricsSection({
       "rug",
       "cuddle",
       "dead",
-      "kid", // Adding "kid" to correct answers array
-      "sin", // Adding "sin" to correct answers array
-      "gang", // Adding "gang" to correct answers array
-      "adore", // Adding "adore" to correct answers array
-      "adhd", // Adding "adhd" to correct answers array
-      "ignore", // Adding "ignore" to correct answers array
-      "anaconda", // Adding "anaconda" to correct answers array
-      "twerking", // Adding "twerking" to correct answers array
-      "squirting", // Adding "squirting" to correct answers array
-      "cursive", // Adding "cursive" to correct answers array
+      "kid",
+      "sin",
+      "gang",
+      "adore",
+      "adhd",
+      "ignore",
+      "anaconda",
+      "twerking",
+      "squirting",
+      "cursive",
     ]
 
     return correctAnswers.every((answer, index) => {
@@ -165,8 +135,8 @@ export function LyricsSection({
               value={guesses[0]?.value || ""}
               onChange={wrapOnChange(guesses[0]?.onChange, "bitch")}
               correctAnswer="bitch"
-              clue="What's another word for a difficult situation?"
-              onFocus={onFocusClue("What's another word for a difficult situation?")}
+              clue={guesses[0]?.clue}
+              onFocus={onFocusClue(guesses[0]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(0) ? "text-black" : "text-black/25"}`}>TRYN...</span>
@@ -185,8 +155,8 @@ export function LyricsSection({
               value={guesses[18]?.value || ""}
               onChange={wrapOnChange(guesses[18]?.onChange, "court")}
               correctAnswer="court"
-              clue="Basketball term for defensive pressure"
-              onFocus={onFocusClue("Basketball term for defensive pressure")}
+              clue={guesses[18]?.clue}
+              onFocus={onFocusClue(guesses[18]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(3) ? "text-black" : "text-black/25"}`}>
@@ -206,8 +176,8 @@ export function LyricsSection({
               value={guesses[1]?.value || ""}
               onChange={wrapOnChange(guesses[1]?.onChange, "through")}
               correctAnswer="through"
-              clue="Past tense of 'come'"
-              onFocus={onFocusClue("Past tense of 'come'")}
+              clue={guesses[1]?.clue}
+              onFocus={onFocusClue(guesses[1]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(5) ? "text-black" : "text-black/25"}`}>
@@ -227,8 +197,8 @@ export function LyricsSection({
               value={guesses[19]?.value || ""}
               onChange={wrapOnChange(guesses[19]?.onChange, "rug")}
               correctAnswer="rug"
-              clue="What you cut when you're dancing"
-              onFocus={onFocusClue("What you cut when you're dancing")}
+              clue={guesses[19]?.clue}
+              onFocus={onFocusClue(guesses[19]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -245,8 +215,8 @@ export function LyricsSection({
               value={guesses[2]?.value || ""}
               onChange={wrapOnChange(guesses[2]?.onChange, "budden")}
               correctAnswer="budden"
-              clue="Rhymes with 'sudden', sounds like a name"
-              onFocus={onFocusClue("Rhymes with 'sudden', sounds like a name")}
+              clue={guesses[2]?.clue}
+              onFocus={onFocusClue(guesses[2]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(9) ? "text-black" : "text-black/25"}`}>UP</span>
@@ -264,8 +234,8 @@ export function LyricsSection({
               value={guesses[3]?.value || ""}
               onChange={wrapOnChange(guesses[3]?.onChange, "buttercup")}
               correctAnswer="buttercup"
-              clue="A delicate yellow flower"
-              onFocus={onFocusClue("A delicate yellow flower")}
+              clue={guesses[3]?.clue}
+              onFocus={onFocusClue(guesses[3]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -278,8 +248,8 @@ export function LyricsSection({
               value={guesses[4]?.value || ""}
               onChange={wrapOnChange(guesses[4]?.onChange, "butternut")}
               correctAnswer="butternut"
-              clue="Type of squash, rhymes with the previous answer"
-              onFocus={onFocusClue("Type of squash, rhymes with the previous answer")}
+              clue={guesses[4]?.clue}
+              onFocus={onFocusClue(guesses[4]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -297,8 +267,8 @@ export function LyricsSection({
               value={guesses[5]?.value || ""}
               onChange={wrapOnChange(guesses[5]?.onChange, "friend")}
               correctAnswer="friend"
-              clue="Someone close to you"
-              onFocus={onFocusClue("Someone close to you")}
+              clue={guesses[5]?.clue}
+              onFocus={onFocusClue(guesses[5]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(15) ? "text-black" : "text-black/25"}`}>
@@ -318,8 +288,8 @@ export function LyricsSection({
               value={guesses[20]?.value || ""}
               onChange={wrapOnChange(guesses[20]?.onChange, "cuddle")}
               correctAnswer="cuddle"
-              clue="What you do when you snuggle close together"
-              onFocus={onFocusClue("What you do when you snuggle close together")}
+              clue={guesses[20]?.clue}
+              onFocus={onFocusClue(guesses[20]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(17) ? "text-black" : "text-black/25"}`}>UP</span>
@@ -336,8 +306,8 @@ export function LyricsSection({
               value={guesses[7]?.value || ""}
               onChange={wrapOnChange(guesses[7]?.onChange, "polygamy")}
               correctAnswer="polygamy"
-              clue="Marriage practice with multiple spouses"
-              onFocus={onFocusClue("Marriage practice with multiple spouses")}
+              clue={guesses[7]?.clue}
+              onFocus={onFocusClue(guesses[7]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -354,8 +324,8 @@ export function LyricsSection({
               value={guesses[23]?.value || ""}
               onChange={wrapOnChange(guesses[23]?.onChange, "sin")}
               correctAnswer="sin"
-              clue="What you commit when you do something wrong"
-              onFocus={onFocusClue("What you commit when you do something wrong")}
+              clue={guesses[23]?.clue}
+              onFocus={onFocusClue(guesses[23]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(20) ? "text-black" : "text-black/25"}`}>
@@ -371,8 +341,8 @@ export function LyricsSection({
               value={guesses[21]?.value || ""}
               onChange={wrapOnChange(guesses[21]?.onChange, "dead")}
               correctAnswer="dead"
-              clue="Completely, totally, or straight"
-              onFocus={onFocusClue("Completely, totally, or straight")}
+              clue={guesses[21]?.clue}
+              onFocus={onFocusClue(guesses[21]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(21) ? "text-black" : "text-black/25"}`}>
@@ -392,8 +362,8 @@ export function LyricsSection({
               value={guesses[22]?.value || ""}
               onChange={wrapOnChange(guesses[22]?.onChange, "kid")}
               correctAnswer="kid"
-              clue="Young person or child"
-              onFocus={onFocusClue("Young person or child")}
+              clue={guesses[22]?.clue}
+              onFocus={onFocusClue(guesses[22]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(23) ? "text-black" : "text-black/25"}`}>
@@ -413,8 +383,8 @@ export function LyricsSection({
               value={guesses[24]?.value || ""}
               onChange={wrapOnChange(guesses[24]?.onChange, "gang")}
               correctAnswer="gang"
-              clue="Group of people who hang out together"
-              onFocus={onFocusClue("Group of people who hang out together")}
+              clue={guesses[24]?.clue}
+              onFocus={onFocusClue(guesses[24]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(25) ? "text-black" : "text-black/25"}`}>
@@ -451,8 +421,8 @@ export function LyricsSection({
               value={guesses[25]?.value || ""}
               onChange={wrapOnChange(guesses[25]?.onChange, "adore")}
               correctAnswer="adore"
-              clue="To love and admire someone deeply"
-              onFocus={onFocusClue("To love and admire someone deeply")}
+              clue={guesses[25]?.clue}
+              onFocus={onFocusClue(guesses[25]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(32) ? "text-black" : "text-black/25"}`}>
@@ -464,7 +434,7 @@ export function LyricsSection({
             I'M INN AND OUT SO THEY SAY THEY WANT MORE OF ME
           </p>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-centered gap-2">
             <span className={`font-black uppercase ${isLyricActive(34) ? "text-black" : "text-black/25"}`}>
               BUT I GOT
             </span>
@@ -472,8 +442,8 @@ export function LyricsSection({
               value={guesses[26]?.value || ""}
               onChange={wrapOnChange(guesses[26]?.onChange, "adhd")}
               correctAnswer="adhd"
-              clue="Attention deficit hyperactivity disorder"
-              onFocus={onFocusClue("Attention deficit hyperactivity disorder")}
+              clue={guesses[26]?.clue}
+              onFocus={onFocusClue(guesses[26]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(34) ? "text-black" : "text-black/25"}`}>
@@ -493,8 +463,8 @@ export function LyricsSection({
               value={guesses[27]?.value || ""}
               onChange={wrapOnChange(guesses[27]?.onChange, "ignore")}
               correctAnswer="ignore"
-              clue="To deliberately not pay attention to someone"
-              onFocus={onFocusClue("To deliberately not pay attention to someone")}
+              clue={guesses[27]?.clue}
+              onFocus={onFocusClue(guesses[27]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(36) ? "text-black" : "text-black/25"}`}>
@@ -518,8 +488,8 @@ export function LyricsSection({
               value={guesses[28]?.value || ""}
               onChange={wrapOnChange(guesses[28]?.onChange, "anaconda")}
               correctAnswer="anaconda"
-              clue="A large type of snake"
-              onFocus={onFocusClue("A large type of snake")}
+              clue={guesses[28]?.clue}
+              onFocus={onFocusClue(guesses[28]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(40) ? "text-black" : "text-black/25"}`}>
@@ -535,8 +505,8 @@ export function LyricsSection({
               value={guesses[29]?.value || ""}
               onChange={wrapOnChange(guesses[29]?.onChange, "twerking")}
               correctAnswer="twerking"
-              clue="A dance move involving hip movements"
-              onFocus={onFocusClue("A dance move involving hip movements")}
+              clue={guesses[29]?.clue}
+              onFocus={onFocusClue(guesses[29]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -556,8 +526,8 @@ export function LyricsSection({
               value={guesses[30]?.value || ""}
               onChange={wrapOnChange(guesses[30]?.onChange, "squirting")}
               correctAnswer="squirting"
-              clue="To spray or shoot liquid in a stream"
-              onFocus={onFocusClue("To spray or shoot liquid in a stream")}
+              clue={guesses[30]?.clue}
+              onFocus={onFocusClue(guesses[30]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -574,8 +544,8 @@ export function LyricsSection({
               value={guesses[31]?.value || ""}
               onChange={wrapOnChange(guesses[31]?.onChange, "cursive")}
               correctAnswer="cursive"
-              clue="A style of handwriting where letters are joined together"
-              onFocus={onFocusClue("A style of handwriting where letters are joined together")}
+              clue={guesses[31]?.clue}
+              onFocus={onFocusClue(guesses[31]?.clue)}
               onBlur={() => setFocusedWord(null)}
               className="flex-1"
             />
@@ -592,8 +562,8 @@ export function LyricsSection({
               value={guesses[10]?.value || ""}
               onChange={wrapOnChange(guesses[10]?.onChange, "polygamy")}
               correctAnswer="polygamy"
-              clue="Marriage practice with multiple spouses"
-              onFocus={onFocusClue("Marriage practice with multiple spouses")}
+              clue={guesses[10]?.clue}
+              onFocus={onFocusClue(guesses[10]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -613,8 +583,8 @@ export function LyricsSection({
               value={guesses[21]?.value || ""}
               onChange={wrapOnChange(guesses[21]?.onChange, "dead")}
               correctAnswer="dead"
-              clue="No longer alive"
-              onFocus={onFocusClue("No longer alive")}
+              clue={guesses[21]?.clue}
+              onFocus={onFocusClue(guesses[21]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(50) ? "text-black" : "text-black/25"}`}>
@@ -634,8 +604,8 @@ export function LyricsSection({
               value={guesses[22]?.value || ""}
               onChange={wrapOnChange(guesses[22]?.onChange, "kid")}
               correctAnswer="kid"
-              clue="Young person or child"
-              onFocus={onFocusClue("Young person or child")}
+              clue={guesses[22]?.clue}
+              onFocus={onFocusClue(guesses[22]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(52) ? "text-black" : "text-black/25"}`}>
@@ -673,8 +643,8 @@ export function LyricsSection({
               value={guesses[11]?.value || ""}
               onChange={wrapOnChange(guesses[11]?.onChange, "wife")}
               correctAnswer="Wife"
-              clue="A spouse that is a woman"
-              onFocus={onFocusClue("A spouse that is a woman")}
+              clue={guesses[11]?.clue}
+              onFocus={onFocusClue(guesses[11]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(58) ? "text-black" : "text-black/25"}`}></span>
@@ -694,8 +664,8 @@ export function LyricsSection({
               value={guesses[12]?.value || ""}
               onChange={wrapOnChange(guesses[12]?.onChange, "love")}
               correctAnswer="Love"
-              clue="Deep affection, tennis score of zero"
-              onFocus={onFocusClue("Deep affection, tennis score of zero")}
+              clue={guesses[12]?.clue}
+              onFocus={onFocusClue(guesses[12]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(60) ? "text-black" : "text-black/25"}`}>
@@ -717,8 +687,8 @@ export function LyricsSection({
               value={guesses[12]?.value || ""}
               onChange={wrapOnChange(guesses[12]?.onChange, "matching")}
               correctAnswer="Matching"
-              clue="Deep affection, tennis score of zero"
-              onFocus={onFocusClue("Deep affection, tennis score of zero")}
+              clue={guesses[12]?.clue}
+              onFocus={onFocusClue(guesses[12]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
@@ -747,8 +717,8 @@ export function LyricsSection({
               value={guesses[15]?.value || ""}
               onChange={wrapOnChange(guesses[15]?.onChange, "termite")}
               correctAnswer="termite"
-              clue="Insect that eats wood"
-              onFocus={onFocusClue("Insect that eats wood")}
+              clue={guesses[15]?.clue}
+              onFocus={onFocusClue(guesses[15]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -765,8 +735,8 @@ export function LyricsSection({
               value={guesses[16]?.value || ""}
               onChange={wrapOnChange(guesses[16]?.onChange, "birthright")}
               correctAnswer="birthright"
-              clue="Something you're entitled to from birth"
-              onFocus={onFocusClue("Something you're entitled to from birth")}
+              clue={guesses[16]?.clue}
+              onFocus={onFocusClue(guesses[16]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
           </div>
@@ -805,7 +775,7 @@ export function LyricsSection({
         </div>
       </div>
 
-      {/* Removed bottom Clue Alert overlay since clues now surface in the banner */}
+      {/* Clue overlay removed previously; banner now shows active clue */}
       <div
         className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
         style={{ background: "linear-gradient(to top, #FFFF64, transparent)" }}
