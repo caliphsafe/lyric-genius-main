@@ -3,6 +3,7 @@
 import type React from "react"
 import { Input } from "@/components/ui/input"
 import { useState, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 
 interface LyricInputProps {
   value: string
@@ -28,41 +29,26 @@ export function LyricInput({
   onBlur,
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
-  const [tooltipBottom, setTooltipBottom] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
-  const scrollParentRef = useRef<HTMLElement | Window | null>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const [tooltipTop, setTooltipTop] = useState<number | null>(null)
 
-  const focusUpdateTooltip = () => {
-    const el = inputRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const vvHeight = (window as any).visualViewport?.height ?? window.innerHeight
-    // place tooltip just above the input by ~8px, horizontally centered to viewport
-    setTooltipBottom(Math.max(8, vvHeight - rect.top + 8))
-  }
-
-  const getScrollParent = (el: HTMLElement | null): HTMLElement | Window => {
-    let p: HTMLElement | null = el?.parentElement ?? null
-    while (p) {
-      const s = getComputedStyle(p)
-      if (/(auto|scroll)/.test(s.overflowY)) return p
-      p = p.parentElement
-    }
-    return window
+  const updateTooltipPosition = () => {
+    if (!inputRef.current) return
+    const rect = inputRef.current.getBoundingClientRect()
+    const h = tooltipRef.current?.offsetHeight ?? 40
+    const margin = 8
+    // Place tooltip just above the input (vertical), but horizontally centered on viewport
+    const top = window.scrollY + rect.top - h - margin
+    setTooltipTop(top)
   }
 
   const handleFocus = () => {
     setState("focused")
-    // find and listen to the nearest scrollable parent so tooltip follows input while scrolling
-    scrollParentRef.current = getScrollParent(inputRef.current)
-    focusUpdateTooltip()
-    const sp = scrollParentRef.current as any
-    sp?.addEventListener?.("scroll", focusUpdateTooltip, { passive: true })
-    window.addEventListener("resize", focusUpdateTooltip)
-    ;(window as any).visualViewport?.addEventListener("resize", focusUpdateTooltip)
-    ;(window as any).visualViewport?.addEventListener("scroll", focusUpdateTooltip)
     onFocus?.()
+    // First calculation right away
+    updateTooltipPosition()
   }
 
   const handleBlur = () => {
@@ -72,13 +58,6 @@ export function LyricInput({
     } else if (!value.trim()) {
       setState("idle")
     }
-    // remove listeners
-    const sp = scrollParentRef.current as any
-    sp?.removeEventListener?.("scroll", focusUpdateTooltip)
-    window.removeEventListener("resize", focusUpdateTooltip)
-    ;(window as any).visualViewport?.removeEventListener("resize", focusUpdateTooltip)
-    ;(window as any).visualViewport?.removeEventListener("scroll", focusUpdateTooltip)
-    setTooltipBottom(null)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -109,14 +88,34 @@ export function LyricInput({
     }, 800)
   }
 
+  // Keep tooltip synced with scroll/resize/keyboard (visualViewport)
+  useEffect(() => {
+    if (state !== "focused") return
+
+    const onMove = () => updateTooltipPosition()
+    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
+
+    // Use capture to catch inner scroll containers too
+    window.addEventListener("scroll", onMove, true)
+    window.addEventListener("resize", onMove)
+    vv?.addEventListener("resize", onMove)
+    vv?.addEventListener("scroll", onMove)
+
+    // Recalculate after first paint so tooltipRef has dimensions
+    const id = window.setTimeout(onMove, 0)
+
+    return () => {
+      window.removeEventListener("scroll", onMove, true)
+      window.removeEventListener("resize", onMove)
+      vv?.removeEventListener("resize", onMove)
+      vv?.removeEventListener("scroll", onMove)
+      window.clearTimeout(id)
+    }
+  }, [state])
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      const sp = scrollParentRef.current as any
-      sp?.removeEventListener?.("scroll", focusUpdateTooltip)
-      window.removeEventListener("resize", focusUpdateTooltip)
-      ;(window as any).visualViewport?.removeEventListener("resize", focusUpdateTooltip)
-      ;(window as any).visualViewport?.removeEventListener("scroll", focusUpdateTooltip)
     }
   }, [])
 
@@ -154,46 +153,62 @@ export function LyricInput({
   }
 
   return (
-    <div className="relative inline-block ml-1 overflow-visible">
-      {/* Fixed, centered tooltip: always centered horizontally on the screen,
-          and vertically positioned just above the focused input */}
-      {state === "focused" && clue && tooltipBottom !== null && (
-        <div
-          className="pointer-events-none fixed left-1/2 -translate-x-1/2 z-50 w-max max-w-[min(85vw,320px)] rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-sm animate-tooltip-in"
-          style={{
-            bottom: tooltipBottom,
-            boxShadow: "0 1px 0 rgba(0,0,0,0.1), 0 6px 14px rgba(0,0,0,0.08)",
-          }}
-        >
-          {clue}
-        </div>
-      )}
-
-      <div className="relative overflow-visible">
-        <Input
-          ref={inputRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
-          style={getBackgroundStyle()}
-          placeholder={placeholder}
-          disabled={state === "checking" || state === "correct"}
-        />
-
-        {/* Loading animation overlay */}
-        {state === "checking" && (
+    <>
+      {/* Tooltip via portal: horizontally centered (50vw), vertically sits above this input */}
+      {state === "focused" && clue && tooltipTop !== null &&
+        createPortal(
           <div
-            className="absolute inset-0 rounded-xl animate-fill-progress"
+            ref={tooltipRef}
+            className="pointer-events-none fixed z-[60] w-max max-w-[min(85vw,320px)] left-1/2 -translate-x-1/2 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-sm animate-tooltip-in"
             style={{
-              background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
-              animation: "fillProgress 0.8s ease-out forwards",
+              top: tooltipTop,
+              boxShadow: "0 1px 0 rgba(0,0,0,0.1), 0 6px 14px rgba(0,0,0,0.08)",
             }}
+          >
+            {clue}
+            {/* caret pointing DOWN, centered under tooltip */}
+            <span
+              className="absolute left-1/2 top-full -translate-x-1/2"
+              style={{
+                width: 0,
+                height: 0,
+                borderLeft: "6px solid transparent",
+                borderRight: "6px solid transparent",
+                borderTop: "6px solid #ffffff",
+              }}
+            />
+          </div>,
+          document.body
+        )
+      }
+
+      <div className="relative inline-block ml-1 overflow-visible">
+        <div className="relative overflow-visible">
+          <Input
+            ref={inputRef}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
+            style={getBackgroundStyle()}
+            placeholder={placeholder}
+            disabled={state === "checking" || state === "correct"}
           />
-        )}
+
+          {/* Loading animation overlay */}
+          {state === "checking" && (
+            <div
+              className="absolute inset-0 rounded-xl animate-fill-progress"
+              style={{
+                background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
+                animation: "fillProgress 0.8s ease-out forwards",
+              }}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
