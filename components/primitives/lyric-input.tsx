@@ -31,23 +31,56 @@ export function LyricInput({
   const [state, setState] = useState<InputState>("idle")
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
-  const tooltipRef = useRef<HTMLDivElement>(null)
-  const [tooltipTop, setTooltipTop] = useState<number | null>(null)
+
+  // Tooltip positioning state
+  const tipRef = useRef<HTMLDivElement>(null)
+  const [tipTop, setTipTop] = useState<number | null>(null)
+  const [tipLeft, setTipLeft] = useState<number | null>(null)
+  const [arrowLeft, setArrowLeft] = useState<number>(0) // px from tooltip's left
+  const [placeBelow, setPlaceBelow] = useState(false)   // if not enough room above input
+
+  const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n))
 
   const updateTooltipPosition = () => {
     if (!inputRef.current) return
+
     const rect = inputRef.current.getBoundingClientRect()
-    const h = tooltipRef.current?.offsetHeight ?? 40
+    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
+
+    const viewportW = vv?.width ?? window.innerWidth
+    const viewportL = vv?.offsetLeft ?? 0
+    const viewportT = vv?.offsetTop ?? 0
+
     const margin = 8
-    // Place tooltip just above the input (vertical), but horizontally centered on viewport
-    const top = window.scrollY + rect.top - h - margin
-    setTooltipTop(top)
+    const tipW = tipRef.current?.offsetWidth ?? 260
+    const tipH = tipRef.current?.offsetHeight ?? 40
+
+    // center of input in the visual viewport coordinate space
+    const inputCenterX = rect.left + rect.width / 2
+
+    // desired tooltip x to center on input
+    const desiredLeft = inputCenterX - tipW / 2
+
+    // clamp horizontally so it never goes off-screen
+    const clampedLeft = clamp(desiredLeft, margin, viewportW - tipW - margin)
+
+    // arrow should point to the input center *within* the tooltip box
+    const arrowX = clamp(inputCenterX - clampedLeft, 10, tipW - 10)
+
+    // try above; if not enough room, place below
+    const aboveTop = rect.top + viewportT - tipH - margin
+    const belowTop = rect.bottom + viewportT + margin
+    const canPlaceAbove = aboveTop >= viewportT + margin
+
+    setPlaceBelow(!canPlaceAbove)
+    setTipTop(canPlaceAbove ? aboveTop : belowTop)
+    setTipLeft(clampedLeft + viewportL)
+    setArrowLeft(arrowX)
   }
 
   const handleFocus = () => {
     setState("focused")
     onFocus?.()
-    // First calculation right away
     updateTooltipPosition()
   }
 
@@ -64,7 +97,6 @@ export function LyricInput({
     if (e.key === "Enter" && value.trim()) {
       // Validate but DO NOT blur — prevents scroll jump on mobile
       validateAnswer()
-      // inputRef.current?.blur()
     }
   }
 
@@ -95,13 +127,12 @@ export function LyricInput({
     const onMove = () => updateTooltipPosition()
     const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
 
-    // Use capture to catch inner scroll containers too
     window.addEventListener("scroll", onMove, true)
     window.addEventListener("resize", onMove)
     vv?.addEventListener("resize", onMove)
     vv?.addEventListener("scroll", onMove)
 
-    // Recalculate after first paint so tooltipRef has dimensions
+    // once more after paint so tipRef has dimensions
     const id = window.setTimeout(onMove, 0)
 
     return () => {
@@ -154,27 +185,45 @@ export function LyricInput({
 
   return (
     <>
-      {/* Tooltip via portal: horizontally centered (50vw), vertically sits above this input */}
-      {state === "focused" && clue && tooltipTop !== null &&
+      {/* Tooltip via portal: clamped inside visual viewport, arrow points to input */}
+      {state === "focused" && clue && tipTop !== null && tipLeft !== null &&
         createPortal(
           <div
-            ref={tooltipRef}
-            className="pointer-events-none fixed z-[60] w-max max-w-[min(85vw,320px)] left-1/2 -translate-x-1/2 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-sm animate-tooltip-in"
+            ref={tipRef}
+            role="tooltip"
+            className="pointer-events-none fixed z-[70] w-max max-w-[min(85vw,360px)] rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-sm animate-tooltip-in"
             style={{
-              top: tooltipTop,
+              top: tipTop,
+              left: tipLeft,
               boxShadow: "0 1px 0 rgba(0,0,0,0.1), 0 6px 14px rgba(0,0,0,0.08)",
             }}
           >
             {clue}
-            {/* caret pointing DOWN, centered under tooltip */}
+            {/* caret */}
             <span
-              className="absolute left-1/2 top-full -translate-x-1/2"
+              className="absolute"
               style={{
-                width: 0,
-                height: 0,
-                borderLeft: "6px solid transparent",
-                borderRight: "6px solid transparent",
-                borderTop: "6px solid #ffffff",
+                left: arrowLeft,
+                transform: "translateX(-50%)",
+                ...(placeBelow
+                  ? {
+                      // tooltip below input → caret points UP
+                      bottom: "100%",
+                      width: 0,
+                      height: 0,
+                      borderLeft: "6px solid transparent",
+                      borderRight: "6px solid transparent",
+                      borderBottom: "6px solid #ffffff",
+                    }
+                  : {
+                      // tooltip above input → caret points DOWN
+                      top: "100%",
+                      width: 0,
+                      height: 0,
+                      borderLeft: "6px solid transparent",
+                      borderRight: "6px solid transparent",
+                      borderTop: "6px solid #ffffff",
+                    }),
               }}
             />
           </div>,
