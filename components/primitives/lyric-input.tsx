@@ -32,7 +32,7 @@ export function LyricInput({
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
 
-  // Tooltip state
+  // Tooltip positioning
   const tipRef = useRef<HTMLDivElement>(null)
   const [tipTop, setTipTop] = useState<number | null>(null)
   const [tipLeft, setTipLeft] = useState<number | null>(null)
@@ -43,62 +43,37 @@ export function LyricInput({
 
   const updateTooltipPosition = () => {
     if (!inputRef.current) return
-
     const rect = inputRef.current.getBoundingClientRect()
-    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
 
-    const margin = 8
+    // Tooltip size (fallbacks before it renders)
     const tipW = tipRef.current?.offsetWidth ?? 260
     const tipH = tipRef.current?.offsetHeight ?? 40
 
-    if (vv) {
-      // Convert layout-viewport rect → visual-viewport coords for position:fixed
-      const vx = rect.left - vv.offsetLeft
-      const vyTop = rect.top - vv.offsetTop
-      const vyBottom = rect.bottom - vv.offsetTop
+    const margin = 8
+    const viewportW = window.innerWidth
+    const inputCenterX = rect.left + rect.width / 2
 
-      const viewportW = vv.width
+    // Center over input, clamp inside viewport
+    const desiredLeft = inputCenterX - tipW / 2
+    const clampedLeft = clamp(desiredLeft, margin, viewportW - tipW - margin)
 
-      // Center over the input (then clamp)
-      const inputCenterX = vx + rect.width / 2
-      const desiredLeft = inputCenterX - tipW / 2
-      const clampedLeft = clamp(desiredLeft, margin, viewportW - tipW - margin)
+    // Arrow position within tooltip box
+    const arrowX = clamp(inputCenterX - clampedLeft, 10, tipW - 10)
 
-      // Arrow location inside the tooltip box
-      const arrowX = clamp(inputCenterX - clampedLeft, 10, tipW - 10)
+    // Prefer above; flip below if not enough room
+    const aboveTop = rect.top - tipH - margin
+    const belowTop = rect.bottom + margin
+    const canPlaceAbove = aboveTop >= margin
 
-      // Prefer above, flip below if not enough space
-      const aboveTop = vyTop - tipH - margin
-      const belowTop = vyBottom + margin
-      const canPlaceAbove = aboveTop >= margin
-
-      setPlaceBelow(!canPlaceAbove)
-      setTipTop(canPlaceAbove ? aboveTop : belowTop)
-      setTipLeft(clampedLeft)
-      setArrowLeft(arrowX)
-    } else {
-      // Fallback (desktop / browsers w/o visualViewport)
-      const viewportW = window.innerWidth
-      const inputCenterX = rect.left + rect.width / 2
-      const desiredLeft = inputCenterX - tipW / 2
-      const clampedLeft = clamp(desiredLeft, margin, viewportW - tipW - margin)
-      const arrowX = clamp(inputCenterX - clampedLeft, 10, tipW - 10)
-
-      const aboveTop = rect.top - tipH - margin
-      const belowTop = rect.bottom + margin
-      const canPlaceAbove = aboveTop >= margin
-
-      setPlaceBelow(!canPlaceAbove)
-      setTipTop(canPlaceAbove ? aboveTop : belowTop)
-      setTipLeft(clampedLeft)
-      setArrowLeft(arrowX)
-    }
+    setPlaceBelow(!canPlaceAbove)
+    setTipTop(canPlaceAbove ? aboveTop : belowTop)
+    setTipLeft(clampedLeft)
+    setArrowLeft(arrowX)
   }
 
   const handleFocus = () => {
     setState("focused")
     onFocus?.()
-    // First pass (before tooltip has size)
     updateTooltipPosition()
   }
 
@@ -114,7 +89,7 @@ export function LyricInput({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim()) {
       validateAnswer()
-      // do not blur on enter → prevents scroll jumps
+      // Do NOT blur on Enter — prevents jump
     }
   }
 
@@ -136,32 +111,26 @@ export function LyricInput({
     }, 800)
   }
 
-  // After tooltip mounts and knows its size, refine position
+  // Recalculate after tooltip mounts (to get real width/height)
   useLayoutEffect(() => {
     if (state !== "focused") return
-    // Next frame to ensure tipRef has dimensions
     const id = requestAnimationFrame(updateTooltipPosition)
     return () => cancelAnimationFrame(id)
   }, [state, clue])
 
-  // Keep synced with scrolling / resizing / keyboard shifts
+  // Keep synced on scroll/resize/orientation changes
   useEffect(() => {
     if (state !== "focused") return
     const onMove = () => updateTooltipPosition()
-    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
 
+    // Use capture on scroll so we reflow before painting
     window.addEventListener("scroll", onMove, true)
     window.addEventListener("resize", onMove)
     window.addEventListener("orientationchange", onMove)
-    vv?.addEventListener("resize", onMove)
-    vv?.addEventListener("scroll", onMove)
-
     return () => {
       window.removeEventListener("scroll", onMove, true)
       window.removeEventListener("resize", onMove)
       window.removeEventListener("orientationchange", onMove)
-      vv?.removeEventListener("resize", onMove)
-      vv?.removeEventListener("scroll", onMove)
     }
   }, [state])
 
@@ -206,7 +175,7 @@ export function LyricInput({
 
   return (
     <>
-      {/* Tooltip (portal) — fixed to visual viewport, clamped, with pointing caret */}
+      {/* Tooltip (portal) */}
       {state === "focused" && clue && tipTop !== null && tipLeft !== null &&
         createPortal(
           <div
