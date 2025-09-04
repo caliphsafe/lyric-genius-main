@@ -145,7 +145,10 @@ export function LyricGameView() {
         />
       </div>
 
-      {/* BOTTOM: clues/message bar (GameHeader) directly above the player, no divider between them; then footer */}
+      {/* NEW: full-width divider between lyrics and GameHeader (same style as top divider) */}
+      <div className="border-t border-black/10" />
+
+      {/* BOTTOM: GameHeader (clues) directly above the player, no divider between them; then footer */}
       <div className="shrink-0 w-full">
         <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
           <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3">
