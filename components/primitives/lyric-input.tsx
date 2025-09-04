@@ -28,11 +28,40 @@ export function LyricInput({
   onBlur,
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
+  const [tooltipBottom, setTooltipBottom] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
+  const scrollParentRef = useRef<HTMLElement | Window | null>(null)
+
+  const focusUpdateTooltip = () => {
+    const el = inputRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const vvHeight = (window as any).visualViewport?.height ?? window.innerHeight
+    // place tooltip just above the input by ~8px, horizontally centered to viewport
+    setTooltipBottom(Math.max(8, vvHeight - rect.top + 8))
+  }
+
+  const getScrollParent = (el: HTMLElement | null): HTMLElement | Window => {
+    let p: HTMLElement | null = el?.parentElement ?? null
+    while (p) {
+      const s = getComputedStyle(p)
+      if (/(auto|scroll)/.test(s.overflowY)) return p
+      p = p.parentElement
+    }
+    return window
+  }
 
   const handleFocus = () => {
     setState("focused")
+    // find and listen to the nearest scrollable parent so tooltip follows input while scrolling
+    scrollParentRef.current = getScrollParent(inputRef.current)
+    focusUpdateTooltip()
+    const sp = scrollParentRef.current as any
+    sp?.addEventListener?.("scroll", focusUpdateTooltip, { passive: true })
+    window.addEventListener("resize", focusUpdateTooltip)
+    ;(window as any).visualViewport?.addEventListener("resize", focusUpdateTooltip)
+    ;(window as any).visualViewport?.addEventListener("scroll", focusUpdateTooltip)
     onFocus?.()
   }
 
@@ -43,6 +72,13 @@ export function LyricInput({
     } else if (!value.trim()) {
       setState("idle")
     }
+    // remove listeners
+    const sp = scrollParentRef.current as any
+    sp?.removeEventListener?.("scroll", focusUpdateTooltip)
+    window.removeEventListener("resize", focusUpdateTooltip)
+    ;(window as any).visualViewport?.removeEventListener("resize", focusUpdateTooltip)
+    ;(window as any).visualViewport?.removeEventListener("scroll", focusUpdateTooltip)
+    setTooltipBottom(null)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -76,6 +112,11 @@ export function LyricInput({
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      const sp = scrollParentRef.current as any
+      sp?.removeEventListener?.("scroll", focusUpdateTooltip)
+      window.removeEventListener("resize", focusUpdateTooltip)
+      ;(window as any).visualViewport?.removeEventListener("resize", focusUpdateTooltip)
+      ;(window as any).visualViewport?.removeEventListener("scroll", focusUpdateTooltip)
     }
   }, [])
 
@@ -114,24 +155,17 @@ export function LyricInput({
 
   return (
     <div className="relative inline-block ml-1 overflow-visible">
-      {/* Tooltip — shows only while focused */}
-      {state === "focused" && clue && (
+      {/* Fixed, centered tooltip: always centered horizontally on the screen,
+          and vertically positioned just above the focused input */}
+      {state === "focused" && clue && tooltipBottom !== null && (
         <div
-          className="pointer-events-none absolute left-1/2 bottom-full z-10 w-max max-w-[min(85vw,260px)] -translate-x-1/2 mb-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-sm animate-tooltip-in"
-          style={{ boxShadow: "0 1px 0 rgba(0,0,0,0.1), 0 6px 14px rgba(0,0,0,0.08)" }}
+          className="pointer-events-none fixed left-1/2 -translate-x-1/2 z-50 w-max max-w-[min(85vw,320px)] rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-sm animate-tooltip-in"
+          style={{
+            bottom: tooltipBottom,
+            boxShadow: "0 1px 0 rgba(0,0,0,0.1), 0 6px 14px rgba(0,0,0,0.08)",
+          }}
         >
           {clue}
-          {/* tiny caret */}
-          <span
-            className="absolute left-1/2 top-full -translate-x-1/2"
-            style={{
-              width: 0,
-              height: 0,
-              borderLeft: "6px solid transparent",
-              borderRight: "6px solid transparent",
-              borderTop: "6px solid #ffffff",
-            }}
-          />
         </div>
       )}
 
