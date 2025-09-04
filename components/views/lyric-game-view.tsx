@@ -113,9 +113,9 @@ export function LyricGameView() {
 
   const progress = (currentTime / duration) * 100
 
-  return (
+    return (
     <div className="h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: "#FFFF64" }}>
-      {/* TOP: logo with divider */}
+      {/* TOP: logo only, with divider underneath */}
       <div className="shrink-0 w-full" style={{ backgroundColor: "#FFFF64" }}>
         <div className="mx-auto max-w-[1024px] px-4 pt-4 pb-3">
           <div className="flex justify-center">
@@ -135,10 +135,10 @@ export function LyricGameView() {
         />
       </div>
 
-      {/* Divider between lyrics and player (as requested) */}
+      {/* FULL-WIDTH DIVIDER BETWEEN LYRICS AND PLAYER */}
       <div className="border-t border-black/10" />
 
-      {/* PLAYER + FOOTER */}
+      {/* BOTTOM: player + footer */}
       <div className="shrink-0 w-full">
         <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
           <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3">
