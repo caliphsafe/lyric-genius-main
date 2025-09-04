@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import { GameHeader } from "@/components/patterns/game-header"
 import { LyricsSection } from "@/components/patterns/lyrics-section"
 import { AudioPlayer } from "@/components/patterns/audio-player"
@@ -40,12 +40,19 @@ export function LyricGameView() {
   const [guess31, setGuess31] = useState("")
 
   const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0) // in seconds
-  const [duration] = useState(120) // 2:00 in seconds
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration] = useState(120)
 
   // drives banner text in GameHeader
   const [activeClue, setActiveClue] = useState<string | null>(null)
 
+  // Refs + dynamic layout sizing for safe padding
+  const playerRef = useRef<HTMLDivElement>(null)
+  const clueRef = useRef<HTMLDivElement>(null)
+  const [bottomPad, setBottomPad] = useState(160) // lyrics bottom padding (player + clue + spacing)
+  const [vvBottom, setVvBottom] = useState(0) // visualViewport keyboard offset
+
+  // Simulated playback tick
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isPlaying && currentTime < duration) {
@@ -61,6 +68,39 @@ export function LyricGameView() {
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
+
+  // Measure player + floating clue bar to keep lyrics clear of them
+  useEffect(() => {
+    const updatePad = () => {
+      const playerH = playerRef.current?.offsetHeight ?? 0
+      const clueH = clueRef.current?.offsetHeight ?? 0
+      // extra 16px breathing room
+      setBottomPad(playerH + clueH + 16)
+    }
+    updatePad()
+    window.addEventListener("resize", updatePad)
+    return () => window.removeEventListener("resize", updatePad)
+  }, [])
+
+  // Track iOS/Android virtual keyboard and keep the floating bar above it
+  useEffect(() => {
+    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
+    if (!vv) return
+
+    const onChange = () => {
+      // distance between layout viewport bottom and visual viewport bottom (i.e., keyboard height)
+      const offset = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop))
+      setVvBottom(offset)
+    }
+
+    vv.addEventListener("resize", onChange)
+    vv.addEventListener("scroll", onChange)
+    onChange()
+    return () => {
+      vv.removeEventListener("resize", onChange)
+      vv.removeEventListener("scroll", onChange)
+    }
+  }, [])
 
   const guesses = [
     { id: "guess0", value: guess0, onChange: setGuess0, correctAnswer: "bitch", clue: "A FEMALE DOG", showTooltip: false },
@@ -101,21 +141,16 @@ export function LyricGameView() {
     console.log("[v0] Game started")
   }
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying)
-  }
-
+  const handlePlayPause = () => setIsPlaying((p) => !p)
   const handlePrevious = () => {
     setCurrentTime(0)
     console.log("[v0] Previous track")
   }
-
   const handleNext = () => {
     setCurrentTime(duration)
     setIsPlaying(false)
     console.log("[v0] Next track")
   }
-
   const handleSeek = (progress: number) => {
     const newTime = Math.floor((progress / 100) * duration)
     setCurrentTime(newTime)
@@ -135,8 +170,11 @@ export function LyricGameView() {
         <div className="border-b border-black/10" />
       </div>
 
-      {/* LYRICS (scrollable) */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 pb-6 scrollbar-minimal">
+      {/* LYRICS (scrollable). Dynamic bottom padding so last lines never hide behind the floating clue bar or player */}
+      <div
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 scrollbar-minimal"
+        style={{ paddingBottom: bottomPad }}
+      >
         <LyricsSection
           verseTitle="VERSE 1"
           guesses={guesses}
@@ -145,15 +183,10 @@ export function LyricGameView() {
         />
       </div>
 
-      {/* DIVIDER between lyrics and GameHeader (matches the one under the logo) */}
-      <div className="border-t border-black/10" />
-
-      {/* BOTTOM: GameHeader directly above the player (no divider between them); then footer */}
+      {/* BOTTOM: Player (in normal flow) + footer */}
       <div className="shrink-0 w-full">
         <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
-          <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3">
-            <GameHeader activeClue={activeClue} />
-            <div className="mt-2" />
+          <div ref={playerRef} className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3">
             <AudioPlayer
               currentTime={formatTime(currentTime)}
               totalTime={formatTime(duration)}
@@ -174,6 +207,22 @@ export function LyricGameView() {
           <p className="text-xs font-medium" style={{ color: "#FFFF64" }}>
             POWERED BY KIIKU © 2025
           </p>
+        </div>
+      </div>
+
+      {/* FLOATING CLUE BAR (always visible, stays above keyboard). Adds its own subtle top divider to separate from lyrics. */}
+      <div
+        ref={clueRef}
+        className="fixed left-0 right-0 z-50"
+        style={{
+          background: "#fff",
+          // place it just above the keyboard (vvBottom), plus safe area
+          bottom: `calc(${vvBottom}px + env(safe-area-inset-bottom))`,
+          boxShadow: "0 -1px 0 rgba(0,0,0,0.1)", // top divider line
+        }}
+      >
+        <div className="mx-auto max-w-[1024px] w-full px-4 py-3">
+          <GameHeader activeClue={activeClue} />
         </div>
       </div>
     </div>
