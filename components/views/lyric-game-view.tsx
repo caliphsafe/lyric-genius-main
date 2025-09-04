@@ -125,13 +125,14 @@ export function LyricGameView() {
 
   return (
     <div className="h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: "#FFFF64" }}>
-      {/* TOP: logo only */}
+      {/* TOP: logo only, with divider underneath */}
       <div className="shrink-0 w-full" style={{ backgroundColor: "#FFFF64" }}>
         <div className="mx-auto max-w-[1024px] px-4 pt-4 pb-3">
           <div className="flex justify-center">
             <img src="/lyric-genius-logo.svg" alt="Lyric Genius" className="w-20 h-auto" />
           </div>
         </div>
+        <div className="border-b border-black/10" />
       </div>
 
       {/* LYRICS (scrollable) */}
@@ -144,16 +145,12 @@ export function LyricGameView() {
         />
       </div>
 
-      {/* BOTTOM: clues/message bar ABOVE the player, then the player, then footer */}
+      {/* BOTTOM: clues/message bar (GameHeader) directly above the player, no divider between them; then footer */}
       <div className="shrink-0 w-full">
         <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
-          {/* moved GameHeader here */}
-          <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3 border-t border-black/10">
+          <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3">
             <GameHeader activeClue={activeClue} />
-          </div>
-
-          {/* player (with song card) */}
-          <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3 border-t border-black/10">
+            <div className="mt-2" />
             <AudioPlayer
               currentTime={formatTime(currentTime)}
               totalTime={formatTime(duration)}
