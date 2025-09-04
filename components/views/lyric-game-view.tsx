@@ -125,20 +125,17 @@ export function LyricGameView() {
 
   return (
     <div className="h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: "#FFFF64" }}>
-      {/* HEADER: logo + active clue banner (kept static, doesn’t scroll) */}
-      {/* Only the middle pane scrolls, so this stays visible regardless of keyboard */}
-      <div className="shrink-0 z-40 w-full" style={{ backgroundColor: "#FFFF64" }}>
+      {/* TOP: logo only */}
+      <div className="shrink-0 w-full" style={{ backgroundColor: "#FFFF64" }}>
         <div className="mx-auto max-w-[1024px] px-4 pt-4 pb-3">
-          <div className="flex justify-center mb-3">
+          <div className="flex justify-center">
             <img src="/lyric-genius-logo.svg" alt="Lyric Genius" className="w-20 h-auto" />
           </div>
-          <GameHeader activeClue={activeClue} />
         </div>
-        <div className="border-t border-black/10" />
       </div>
 
-      {/* LYRICS (the only scrollable region) */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 pb-36 scrollbar-minimal">
+      {/* LYRICS (scrollable) */}
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 pb-6 scrollbar-minimal">
         <LyricsSection
           verseTitle="VERSE 1"
           guesses={guesses}
@@ -147,9 +144,15 @@ export function LyricGameView() {
         />
       </div>
 
-      {/* PLAYER + FOOTER (non-scrolling bottom) */}
-      <div className="shrink-0 z-40 w-full">
+      {/* BOTTOM: clues/message bar ABOVE the player, then the player, then footer */}
+      <div className="shrink-0 w-full">
         <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
+          {/* moved GameHeader here */}
+          <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3 border-t border-black/10">
+            <GameHeader activeClue={activeClue} />
+          </div>
+
+          {/* player (with song card) */}
           <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3 border-t border-black/10">
             <AudioPlayer
               currentTime={formatTime(currentTime)}
