@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { LyricsSection } from "@/components/patterns/lyrics-section"
 import { AudioPlayer } from "@/components/patterns/audio-player"
 
@@ -39,12 +39,13 @@ export function LyricGameView() {
   const [guess31, setGuess31] = useState("")
 
   const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0) // in seconds
-  const [duration] = useState(120) // 2:00 in seconds
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration] = useState(120)
 
-  // (Optional) still present if LyricsSection uses it for anything internal
+  // optional, still passed down by LyricsSection but not rendered as a bar anymore
   const [activeClue, setActiveClue] = useState<string | null>(null)
 
+  // Simulated playback tick
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isPlaying && currentTime < duration) {
@@ -97,15 +98,8 @@ export function LyricGameView() {
   ]
 
   const handlePlayPause = () => setIsPlaying((p) => !p)
-  const handlePrevious = () => {
-    setCurrentTime(0)
-    console.log("[v0] Previous track")
-  }
-  const handleNext = () => {
-    setCurrentTime(duration)
-    setIsPlaying(false)
-    console.log("[v0] Next track")
-  }
+  const handlePrevious = () => { setCurrentTime(0) }
+  const handleNext = () => { setCurrentTime(duration); setIsPlaying(false) }
   const handleSeek = (progress: number) => {
     const newTime = Math.floor((progress / 100) * duration)
     setCurrentTime(newTime)
@@ -113,7 +107,7 @@ export function LyricGameView() {
 
   const progress = (currentTime / duration) * 100
 
-    return (
+  return (
     <div className="h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: "#FFFF64" }}>
       {/* TOP: logo only, with divider underneath */}
       <div className="shrink-0 w-full" style={{ backgroundColor: "#FFFF64" }}>
@@ -126,7 +120,7 @@ export function LyricGameView() {
       </div>
 
       {/* LYRICS (scrollable) */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 pb-6 scrollbar-minimal">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 scrollbar-minimal">
         <LyricsSection
           verseTitle="VERSE 1"
           guesses={guesses}
@@ -135,10 +129,10 @@ export function LyricGameView() {
         />
       </div>
 
-      {/* FULL-WIDTH DIVIDER BETWEEN LYRICS AND PLAYER */}
+      {/* Divider between lyrics and the player (restored) */}
       <div className="border-t border-black/10" />
 
-      {/* BOTTOM: player + footer */}
+      {/* PLAYER + footer */}
       <div className="shrink-0 w-full">
         <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
           <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3">
