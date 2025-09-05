@@ -33,7 +33,7 @@ export function LyricsSection({
     { start: 5, end: 8 }, // I'M IN THIS BITCH TRYNA RUN IT UP
     { start: 8, end: 11 }, // LIKE IT'S A FULL [court] PRESS...
     { start: 11, end: 14 }, // I GOT TWO 10S WITH ME...
-    { start: 14, end: 17 }, // SHORTY CAME [first] AND...
+    { start: 14, end: 17 }, // SHORTY CAME [through] AND...
     { start: 17, end: 20 }, // NOW SHE GOT HER MOUTH ON IT...
     { start: 20, end: 23 }, // MET HER AT A PARTY...
     { start: 23, end: 26 }, // UNH, BUT FUCK IT NOW...
@@ -58,7 +58,7 @@ export function LyricsSection({
   const areAllInputsCorrect = () => {
     const correctAnswers = [
       "bitch",
-      "first",
+      "through",
       "budden",
       "buttercup",
       "butternut",
@@ -87,7 +87,6 @@ export function LyricsSection({
       "twerking",
       "squirting",
       "cursive",
-      "immigrant",
     ]
 
     return correctAnswers.every((answer, index) => {
@@ -805,7 +804,7 @@ export function LyricsSection({
             <LyricInput
               value={guesses[32]?.value || ""}
               onChange={wrapOnChange(guesses[32]?.onChange, "immigrant")}
-              correctAnswer="immigrant"
+              correctAnswer="baobab"
               clue={guesses[32]?.clue}
               onFocus={onFocusClue(guesses[32]?.clue)}
               onBlur={() => setFocusedWord(null)}
