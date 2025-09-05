@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import LyricsSection from "@/components/patterns/lyrics-section"
+import { LyricsSection } from "@/components/patterns/lyrics-section"
 import { AudioPlayer } from "@/components/patterns/audio-player"
 
 export function LyricGameView() {
