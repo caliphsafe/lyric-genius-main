@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useState, useRef, useEffect, useLayoutEffect } from "react"
 import { createPortal } from "react-dom"
 import { Input } from "@/components/ui/input"
 
@@ -30,88 +30,101 @@ export function LyricInput({
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
   const inputRef = useRef<HTMLInputElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Tooltip controls
-  const [showTip, setShowTip] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-  const tipRef = useRef<HTMLDivElement>(null)
+  // --- Tooltip via portal: measured position in viewport ---
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const [tooltipPos, setTooltipPos] = useState<{ left: number; bottom: number } | null>(null)
+  const showTooltip = state === "focused" && !!clue
 
-  // Only compute vertical position; horizontal is centered via flexbox
-  const [tipStyle, setTipStyle] = useState<React.CSSProperties>({})
+  const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n))
 
-  useEffect(() => setIsMounted(true), [])
-
-  const positionTooltip = () => {
-    if (!inputRef.current || !tipRef.current) return
-    const rect = inputRef.current.getBoundingClientRect()
-
-    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
-    const viewportH = vv?.height ?? window.innerHeight
-
-    // Measure tooltip height (after it's rendered)
-    const tipH = tipRef.current.offsetHeight
-
-    // Place tooltip above the input, with an 8px gap; clamp to at least 8px from top
-    const top = Math.max(8, rect.top - tipH - 8)
-
-    setTipStyle({
-      position: "fixed",
-      top,
-      left: 0,
-      right: 0,
-      zIndex: 60,
-      display: "flex",
-      justifyContent: "center",
-      pointerEvents: "none",
-      paddingLeft: 16,
-      paddingRight: 16,
-      // keep inside viewport height if layout shifts
-      maxHeight: viewportH - 8,
-    })
+  function getScrollParents(el: HTMLElement | null): (Element | Window)[] {
+    const parents: (Element | Window)[] = [window]
+    let p = el?.parentElement || null
+    while (p) {
+      const { overflowY } = window.getComputedStyle(p)
+      if (/auto|scroll|overlay/i.test(overflowY)) parents.push(p)
+      p = p.parentElement
+    }
+    return parents
   }
 
-  useLayoutEffect(() => {
-    if (!showTip) return
-    positionTooltip()
-    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
+  const updateTooltipPos = () => {
+    const inputEl = inputRef.current
+    const tipEl = tooltipRef.current
+    if (!inputEl || !tipEl) return
 
-    const onScroll = () => positionTooltip()
-    const onResize = () => positionTooltip()
-    window.addEventListener("scroll", onScroll, { passive: true })
+    const rect = inputEl.getBoundingClientRect()
+
+    // Measure tooltip width to clamp within viewport
+    const tipWidth = tipEl.offsetWidth || 0
+    const vw = window.innerWidth
+    const edgePadding = 8 // keep a little space from screen edges
+
+    const centerX = rect.left + rect.width / 2
+    const leftEdge = clamp(centerX - tipWidth / 2, edgePadding, Math.max(edgePadding, vw - tipWidth - edgePadding))
+
+    // Place tooltip ABOVE the input without needing its height:
+    // use bottom based on the input's top
+    const bottom = Math.max(0, window.innerHeight - rect.top + 8) // 8px gap above input
+
+    setTooltipPos({ left: Math.round(leftEdge), bottom: Math.round(bottom) })
+  }
+
+  // Keep tooltip glued to input on focus + while visible
+  useEffect(() => {
+    if (!showTooltip) return
+
+    // First frame after mount to ensure we can measure size
+    const raf = requestAnimationFrame(updateTooltipPos)
+
+    const scrollParents = getScrollParents(inputRef.current)
+    const onScroll = () => updateTooltipPos()
+    const onResize = () => updateTooltipPos()
+
+    // VisualViewport changes (iOS keyboard)
+    const vv = window.visualViewport
+    vv?.addEventListener("resize", onResize)
+    vv?.addEventListener("scroll", onResize)
+
     window.addEventListener("resize", onResize)
-    window.addEventListener("orientationchange", onResize)
-    if (vv) {
-      vv.addEventListener("resize", onResize)
-      vv.addEventListener("scroll", onResize)
+    for (const p of scrollParents) {
+      // `scroll` doesn’t bubble, attach to each scrollable ancestor
+      ;(p as Element | Window).addEventListener("scroll", onScroll, { passive: true } as any)
     }
 
-    const raf = requestAnimationFrame(positionTooltip)
+    // Also reposition as the user types (width of input may change)
+    const inputEl = inputRef.current
+    inputEl?.addEventListener("input", onResize)
 
     return () => {
       cancelAnimationFrame(raf)
-      window.removeEventListener("scroll", onScroll)
+      vv?.removeEventListener("resize", onResize)
+      vv?.removeEventListener("scroll", onResize)
       window.removeEventListener("resize", onResize)
-      window.removeEventListener("orientationchange", onResize)
-      if (vv) {
-        vv.removeEventListener("resize", onResize)
-        vv.removeEventListener("scroll", onResize)
+      for (const p of scrollParents) {
+        ;(p as Element | Window).removeEventListener("scroll", onScroll)
       }
+      inputEl?.removeEventListener("input", onResize)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showTip, value])
+  }, [showTooltip])
 
+  // Also recalc whenever value changes while focused (mobile caret jumps, etc.)
+  useLayoutEffect(() => {
+    if (showTooltip) updateTooltipPos()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, showTooltip])
+
+  // --- Input state handling ---
   const handleFocus = () => {
     setState("focused")
-    setShowTip(true)
-    // Let layout settle before measuring
-    requestAnimationFrame(positionTooltip)
     onFocus?.()
   }
 
   const handleBlur = () => {
     onBlur?.()
-    setShowTip(false)
     if (value.trim() && state !== "correct") {
       validateAnswer()
     } else if (!value.trim()) {
@@ -121,8 +134,9 @@ export function LyricInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim()) {
-      // validate but keep focus; avoids scroll jump
+      // Validate but DO NOT blur — keeps viewport steady
       validateAnswer()
+      // inputRef.current?.blur() // intentionally disabled
     }
   }
 
@@ -138,7 +152,7 @@ export function LyricInput({
 
       if (isCorrect) {
         setTimeout(() => {
-          // remain correct
+          // keep correct state
         }, 300)
       } else {
         setTimeout(() => {
@@ -155,20 +169,20 @@ export function LyricInput({
   }, [])
 
   const getInputStyles = () => {
-    const baseStyles =
+    const base =
       "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
 
     switch (state) {
       case "checking":
-        return `${baseStyles} text-white animate-fill-left-to-right animate-pulse`
+        return `${base} text-white animate-fill-left-to-right animate-pulse`
       case "correct":
-        return `${baseStyles} text-white animate-scale-success`
+        return `${base} text-white animate-scale-success`
       case "incorrect":
-        return `${baseStyles} text-white`
+        return `${base} text-white`
       case "focused":
-        return `${baseStyles} text-black placeholder:text-gray-600`
+        return `${base} text-black placeholder:text-gray-600`
       default:
-        return `${baseStyles} text-black placeholder:text-gray-600`
+        return `${base} text-black placeholder:text-gray-600`
     }
   }
 
@@ -188,48 +202,62 @@ export function LyricInput({
   }
 
   return (
-    <div className="relative inline-block ml-1 overflow-visible">
-      <div className="relative overflow-visible">
-        <Input
-          ref={inputRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
-          style={getBackgroundStyle()}
-          placeholder={placeholder}
-          disabled={state === "checking" || state === "correct"}
-        />
-
-        {state === "checking" && (
-          <div
-            className="absolute inset-0 rounded-xl animate-fill-progress"
-            style={{
-              background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
-              animation: "fillProgress 0.8s ease-out forwards",
-            }}
+    <>
+      <div className="relative inline-block ml-1 overflow-visible">
+        <div className="relative overflow-visible">
+          <Input
+            ref={inputRef}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
+            style={getBackgroundStyle()}
+            placeholder={placeholder}
+            disabled={state === "checking" || state === "correct"}
           />
-        )}
+
+          {/* Loading animation overlay */}
+          {state === "checking" && (
+            <div
+              className="absolute inset-0 rounded-xl animate-fill-progress pointer-events-none"
+              style={{
+                background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
+                animation: "fillProgress 0.8s ease-out forwards",
+              }}
+            />
+          )}
+        </div>
       </div>
 
-      {/* Centered, arrowless tooltip (portal) */}
-      {isMounted && showTip && state !== "correct" && clue && createPortal(
-        <div style={tipStyle}>
+      {/* Portal tooltip: centered, clamped to viewport, no arrow */}
+      {showTooltip && tooltipPos &&
+        createPortal(
           <div
-            ref={tipRef}
-            className="pointer-events-auto rounded-xl shadow-md border border-black/10 bg-white px-3 py-2 text-[13px] leading-snug font-medium animate-tooltip-in"
+            ref={tooltipRef}
+            role="tooltip"
+            className="pointer-events-none fixed z-[1000] animate-tooltip-in"
             style={{
-              maxWidth: "min(92vw, 520px)",
-              textAlign: "center",
+              left: tooltipPos.left,
+              bottom: tooltipPos.bottom,
+              maxWidth: "min(92vw, 420px)",
             }}
           >
-            {clue}
-          </div>
-        </div>,
-        document.body
-      )}
-    </div>
+            <div
+              className="rounded-lg px-3 py-2 text-xs font-medium shadow-md"
+              style={{
+                background: "#fff",
+                color: "#111",
+                boxShadow:
+                  "0 8px 24px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)",
+              }}
+            >
+              {clue}
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
   )
 }
