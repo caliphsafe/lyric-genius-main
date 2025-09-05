@@ -37,6 +37,7 @@ export function LyricGameView() {
   const [guess29, setGuess29] = useState("")
   const [guess30, setGuess30] = useState("")
   const [guess31, setGuess31] = useState("")
+  const [guess32, setGuess32] = useState("")
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -92,9 +93,10 @@ export function LyricGameView() {
     { id: "guess26", value: guess26, onChange: setGuess26, correctAnswer: "wife", clue: "A SPOUSE THAT IS A WOMAN", showTooltip: false },
     { id: "guess27", value: guess27, onChange: setGuess27, correctAnswer: "love", clue: "THE PUREST FEELING ON EARTH, THE OPPOSITE OF HATE", showTooltip: false },
     { id: "guess28", value: guess28, onChange: setGuess28, correctAnswer: "matching", clue: "COORDINATING, COLORS / CLOTHES THAT GO TOGETHER", showTooltip: false },
-    { id: "guess29", value: guess29, onChange: setGuess29, correctAnswer: "matching", clue: "THE OPPOSITE OF HEAVEN, WHERE SINNERS GO IN RELIGION", showTooltip: false },
+    { id: "guess29", value: guess29, onChange: setGuess29, correctAnswer: "hell", clue: "THE OPPOSITE OF HEAVEN, WHERE SINNERS GO IN RELIGION", showTooltip: false },
     { id: "guess30", value: guess30, onChange: setGuess30, correctAnswer: "termite", clue: "A SMALL BUG THAT IS KNOWN FOR EATING THROUGH WOOD", showTooltip: false },
     { id: "guess31", value: guess31, onChange: setGuess31, correctAnswer: "baobab", clue: "THE MAGNIFICENT AFRICAN 'TREE OF LIFE' KNOWN FOR ITS ENORMOUS, WATER-STORING TRUNKS AND NUTRITIOUS FRUIT", showTooltip: false },
+    { id: "guess32", value: guess32, onChange: setGuess32, correctAnswer: "immigrant", clue: "A PERSON WHO COMES TO LIVE PERMANENTLY IN A FOREIGN COUNTRY", showTooltip: false },
   ]
 
   const handlePlayPause = () => setIsPlaying((p) => !p)
