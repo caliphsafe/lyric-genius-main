@@ -154,10 +154,10 @@
     to   { opacity: 1; transform: translateX(-50%) translateY(0); }
   }
 
-  /* Smooth tooltip ease-in animation */
+  /* Smooth tooltip ease-in animation (X-translation removed to keep centered) */
   @keyframes tooltipIn {
-    from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   .animate-fill-progress { animation: fillProgress 0.8s ease-out forwards; }
