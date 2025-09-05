@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect, useLayoutEffect } from "react"
-import { createPortal } from "react-dom"
+
 import { Input } from "@/components/ui/input"
+import { useState, useRef, useEffect } from "react"
 
 interface LyricInputProps {
   value: string
@@ -30,66 +30,10 @@ export function LyricInput({
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
   const inputRef = useRef<HTMLInputElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout>()
 
-  // Tooltip portal
-  const tooltipRef = useRef<HTMLDivElement>(null)
-  const [tooltipPos, setTooltipPos] = useState<{ left: number; top: number } | null>(null)
   const showTooltip = state === "focused" && !!clue
 
-  const updateTooltipPos = () => {
-    const inputEl = inputRef.current
-    const tipEl = tooltipRef.current
-    if (!inputEl || !tipEl) return
-
-    const rect = inputEl.getBoundingClientRect()
-    const pageX = window.scrollX || window.pageXOffset || 0
-    const pageY = window.scrollY || window.pageYOffset || 0
-
-    const tipW = tipEl.offsetWidth || tipEl.getBoundingClientRect().width || 0
-    const tipH = tipEl.offsetHeight || tipEl.getBoundingClientRect().height || 0
-
-    const gap = 8
-    const edgePadding = 8
-    const viewportW = document.documentElement.clientWidth || window.innerWidth
-
-    const leftCentered = pageX + (viewportW - tipW) / 2
-    const left = Math.round(Math.max(leftCentered, pageX + edgePadding))
-
-    let top = pageY + rect.top - tipH - gap
-    top = Math.round(Math.max(top, pageY + 4))
-
-    setTooltipPos({ left, top })
-  }
-
-  useEffect(() => {
-    if (!showTooltip) return
-
-    const onMove = () => updateTooltipPos()
-
-    window.addEventListener("scroll", onMove, { passive: true })
-    window.addEventListener("resize", onMove)
-
-    const el = inputRef.current
-    el?.addEventListener("input", onMove)
-
-    const raf = requestAnimationFrame(updateTooltipPos)
-
-    return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener("scroll", onMove)
-      window.removeEventListener("resize", onMove)
-      el?.removeEventListener("input", onMove)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showTooltip])
-
-  useLayoutEffect(() => {
-    if (showTooltip) updateTooltipPos()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, showTooltip])
-
-  // Input state handling
   const handleFocus = () => {
     setState("focused")
     onFocus?.()
@@ -107,22 +51,29 @@ export function LyricInput({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim()) {
       validateAnswer()
-      // no blur -> avoids jump
+      // DO NOT blur on Enter — prevents jumping
     }
   }
 
   const validateAnswer = () => {
     if (state === "checking" || state === "correct") return
+
     setState("checking")
 
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
+    // Simulate loading animation duration
     timeoutRef.current = setTimeout(() => {
       const isCorrect = value.trim().toLowerCase() === correctAnswer.toLowerCase()
       setState(isCorrect ? "correct" : "incorrect")
 
-      if (!isCorrect) {
-        setTimeout(() => setState("idle"), 1500)
+      if (isCorrect) {
+        // keep "correct" state; keep input enabled if you want to allow edits:
+        // setTimeout(() => setState("focused"), 300)
+      } else {
+        setTimeout(() => {
+          setState("idle")
+        }, 1500)
       }
     }, 800)
   }
@@ -166,58 +117,61 @@ export function LyricInput({
   }
 
   return (
-    <>
-      <div className="relative inline-block ml-1 overflow-visible">
-        <div className="relative overflow-visible">
-          <Input
-            ref={inputRef}
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onKeyDown={handleKeyDown}
-            inputMode="text"
-            autoComplete="off"
-            autoCorrect="off"
-            spellCheck={false}
-            className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
-            style={getBackgroundStyle()}
-            placeholder={placeholder}
-          />
-        </div>
-      </div>
-
-      {showTooltip &&
-        createPortal(
+    <div className="relative inline-block ml-1 overflow-visible">
+      {/* Inline tooltip: centered over this input, never intercepts taps/clicks */}
+      {showTooltip && (
+        <div
+          className="
+            pointer-events-none absolute left-1/2 -translate-x-1/2
+            bottom-[calc(100%+8px)] z-[100]
+          "
+          style={{ maxWidth: "min(92vw, 420px)" }}
+        >
           <div
-            ref={tooltipRef}
-            role="tooltip"
-            className="pointer-events-none absolute z-[1000] animate-tooltip-in"
+            className="rounded-lg px-3 py-2 text-xs font-medium"
             style={{
-              visibility: tooltipPos ? "visible" : "hidden",
-              left: tooltipPos?.left ?? 0,
-              top: tooltipPos?.top ?? 0,
-              maxWidth: "min(92vw, 420px)",
-              willChange: "left, top",
-              touchAction: "none",
-              userSelect: "none",
+              background: "#fff",
+              color: "#111",
+              boxShadow:
+                "0 8px 24px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)",
             }}
           >
-            <div
-              className="rounded-lg px-3 py-2 text-xs font-medium tooltip-reset"
-              style={{
-                background: "#fff",
-                color: "#111",
-                boxShadow:
-                  "0 8px 24px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)",
-              }}
-            >
-              {clue}
-            </div>
-          </div>,
-          document.body
+            {clue}
+          </div>
+        </div>
+      )}
+
+      <div className="relative overflow-visible">
+        <Input
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          inputMode="text"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
+          style={getBackgroundStyle()}
+          placeholder={placeholder}
+          // Keep inputs editable at all times. If you want to lock when correct, uncomment:
+          // disabled={state === "checking" || state === "correct"}
+        />
+
+        {/* Loading animation overlay */}
+        {state === "checking" && (
+          <div
+            className="absolute inset-0 rounded-xl animate-fill-progress pointer-events-none"
+            style={{
+              background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
+              animation: "fillProgress 0.8s ease-out forwards",
+            }}
+          />
         )}
-    </>
+      </div>
+    </div>
   )
 }
