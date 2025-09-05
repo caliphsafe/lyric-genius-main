@@ -34,7 +34,7 @@ export function LyricInput({
 
   // Tooltip via portal
   const tooltipRef = useRef<HTMLDivElement>(null)
-  const [tooltipPos, setTooltipPos] = useState<{ left: number; bottom: number } | null>(null)
+  const [tooltipPos, setTooltipPos] = useState<{ left: number; top: number } | null>(null)
   const showTooltip = state === "focused" && !!clue
 
   const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n))
@@ -57,60 +57,63 @@ export function LyricInput({
 
     const rect = inputEl.getBoundingClientRect()
 
-    // Use visual viewport on iOS so keyboard doesn’t throw off vertical math
+    // Use the visual viewport on iOS so the keyboard/toolbars don't break math
     const vv = window.visualViewport
     const viewportWidth = vv?.width ?? window.innerWidth
     const viewportHeight = vv?.height ?? window.innerHeight
+    const offsetLeft = vv?.offsetLeft ?? 0
+    const offsetTop = vv?.offsetTop ?? 0
 
-    // measure tip width for clamping
-    const tipWidth = tipEl.offsetWidth || 0
+    // Measure the tooltip box while it's "visibility:hidden" (still has layout)
+    const tipW = tipEl.offsetWidth || tipEl.getBoundingClientRect().width || 0
+    const tipH = tipEl.offsetHeight || tipEl.getBoundingClientRect().height || 0
+    const gap = 8
     const edgePadding = 8
 
-    const centerX = rect.left + rect.width / 2
-    const leftEdge = clamp(
-      centerX - tipWidth / 2,
-      edgePadding,
-      Math.max(edgePadding, viewportWidth - tipWidth - edgePadding)
-    )
+    // Horizontally center ON SCREEN (prevents left/right clipping on phones)
+    const leftCentered = offsetLeft + (viewportWidth - tipW) / 2
+    const left = Math.round(clamp(leftCentered, offsetLeft + edgePadding, offsetLeft + viewportWidth - tipW - edgePadding))
 
-    // Place ABOVE the input with an 8px gap
-    const bottom = Math.max(0, viewportHeight - rect.top + 8)
+    // Vertically: place just ABOVE the input
+    let top = offsetTop + rect.top - tipH - gap
 
-    setTooltipPos({ left: Math.round(leftEdge), bottom: Math.round(bottom) })
+    // If too close to the top, clamp down a bit (you can flip below if desired)
+    const minTop = offsetTop + 4
+    top = Math.round(Math.max(top, minTop))
+
+    setTooltipPos({ left, top })
   }
 
   // Reposition while visible: scroll, resize, keyboard, typing
   useEffect(() => {
     if (!showTooltip) return
 
-    // Ensure the portal node exists, then measure
     const raf = requestAnimationFrame(updateTooltipPos)
 
-    const onScroll = () => updateTooltipPos()
-    const onResize = () => updateTooltipPos()
+    const onScrollOrResize = () => updateTooltipPos()
 
     const scrollParents = getScrollParents(inputRef.current)
     for (const p of scrollParents) {
-      ;(p as Element | Window).addEventListener("scroll", onScroll, { passive: true } as any)
+      ;(p as Element | Window).addEventListener("scroll", onScrollOrResize, { passive: true } as any)
     }
-    window.addEventListener("resize", onResize)
+    window.addEventListener("resize", onScrollOrResize)
 
     const vv = window.visualViewport
-    vv?.addEventListener("resize", onResize)
-    vv?.addEventListener("scroll", onResize)
+    vv?.addEventListener("resize", onScrollOrResize)
+    vv?.addEventListener("scroll", onScrollOrResize)
 
     const inputEl = inputRef.current
-    inputEl?.addEventListener("input", onResize)
+    inputEl?.addEventListener("input", onScrollOrResize)
 
     return () => {
       cancelAnimationFrame(raf)
       for (const p of scrollParents) {
-        ;(p as Element | Window).removeEventListener("scroll", onScroll)
+        ;(p as Element | Window).removeEventListener("scroll", onScrollOrResize)
       }
-      window.removeEventListener("resize", onResize)
-      vv?.removeEventListener("resize", onResize)
-      vv?.removeEventListener("scroll", onResize)
-      inputEl?.removeEventListener("input", onResize)
+      window.removeEventListener("resize", onScrollOrResize)
+      vv?.removeEventListener("resize", onScrollOrResize)
+      vv?.removeEventListener("scroll", onScrollOrResize)
+      inputEl?.removeEventListener("input", onScrollOrResize)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showTooltip])
@@ -233,7 +236,7 @@ export function LyricInput({
         </div>
       </div>
 
-      {/* Portal tooltip: render even before measured; hidden until we have a position */}
+      {/* Portal tooltip: render immediately when focused; hidden until we have a measured position */}
       {showTooltip &&
         createPortal(
           <div
@@ -243,8 +246,9 @@ export function LyricInput({
             style={{
               visibility: tooltipPos ? "visible" : "hidden",
               left: tooltipPos?.left ?? 0,
-              bottom: tooltipPos?.bottom ?? 0,
+              top: tooltipPos?.top ?? 0,
               maxWidth: "min(92vw, 420px)",
+              willChange: "left, top",
             }}
           >
             <div
