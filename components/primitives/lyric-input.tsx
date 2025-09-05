@@ -60,7 +60,6 @@ export function LyricInput({
     // Use the visual viewport on iOS so the keyboard/toolbars don't break math
     const vv = window.visualViewport
     const viewportWidth = vv?.width ?? window.innerWidth
-    const viewportHeight = vv?.height ?? window.innerHeight
     const offsetLeft = vv?.offsetLeft ?? 0
     const offsetTop = vv?.offsetTop ?? 0
 
@@ -76,8 +75,6 @@ export function LyricInput({
 
     // Vertically: place just ABOVE the input
     let top = offsetTop + rect.top - tipH - gap
-
-    // If too close to the top, clamp down a bit (you can flip below if desired)
     const minTop = offsetTop + 4
     top = Math.round(Math.max(top, minTop))
 
@@ -89,7 +86,6 @@ export function LyricInput({
     if (!showTooltip) return
 
     const raf = requestAnimationFrame(updateTooltipPos)
-
     const onScrollOrResize = () => updateTooltipPos()
 
     const scrollParents = getScrollParents(inputRef.current)
@@ -156,14 +152,8 @@ export function LyricInput({
       const isCorrect = value.trim().toLowerCase() === correctAnswer.toLowerCase()
       setState(isCorrect ? "correct" : "incorrect")
 
-      if (isCorrect) {
-        setTimeout(() => {
-          // keep correct state
-        }, 300)
-      } else {
-        setTimeout(() => {
-          setState("idle")
-        }, 1500)
+      if (!isCorrect) {
+        setTimeout(() => setState("idle"), 1500)
       }
     }, 800)
   }
@@ -177,10 +167,9 @@ export function LyricInput({
   const getInputStyles = () => {
     const base =
       "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
-
     switch (state) {
       case "checking":
-        return `${base} text-white animate-fill-left-to-right animate-pulse`
+        return `${base} text-white`
       case "correct":
         return `${base} text-white animate-scale-success`
       case "incorrect":
@@ -218,25 +207,18 @@ export function LyricInput({
             onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
+            inputMode="text"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
             className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
             style={getBackgroundStyle()}
             placeholder={placeholder}
-            disabled={state === "checking" || state === "correct"}
           />
-
-          {state === "checking" && (
-            <div
-              className="absolute inset-0 rounded-xl animate-fill-progress pointer-events-none"
-              style={{
-                background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
-                animation: "fillProgress 0.8s ease-out forwards",
-              }}
-            />
-          )}
         </div>
       </div>
 
-      {/* Portal tooltip: render immediately when focused; hidden until we have a measured position */}
+      {/* Tooltip portal (centered horizontally, above input). No arrow; pointer-events disabled. */}
       {showTooltip &&
         createPortal(
           <div
@@ -252,7 +234,7 @@ export function LyricInput({
             }}
           >
             <div
-              className="rounded-lg px-3 py-2 text-xs font-medium shadow-md tooltip-reset"
+              className="rounded-lg px-3 py-2 text-xs font-medium tooltip-reset"
               style={{
                 background: "#fff",
                 color: "#111",
