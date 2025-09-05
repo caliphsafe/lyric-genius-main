@@ -95,8 +95,11 @@ export function LyricInput({
   }, [])
 
   const getInputStyles = () => {
+    // ↓ Reduced to ~70% of previous sizes:
+    //   was: text-lg (1.125rem) / md:text-xl (1.25rem) / lg:text-2xl (1.5rem)
+    //   now: ~0.79rem / 0.88rem / 1.05rem
     const baseStyles =
-      "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
+      "inline-flex w-32 h-10 rounded-xl text-[0.79rem] md:text-[0.88rem] lg:text-[1.05rem] font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
 
     switch (state) {
       case "checking":
@@ -130,11 +133,11 @@ export function LyricInput({
   return (
     <div className="relative inline-block ml-1 overflow-visible">
       <div className="relative overflow-visible">
-        {/* Tooltip: single-line, centered above input */}
+        {/* Tooltip: single-line, centered above input (also scaled down ~70%) */}
         {showTooltip && (
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 pointer-events-none z-20">
             <div
-              className="rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap"
+              className="rounded-lg px-3 py-2 font-medium whitespace-nowrap"
               style={{
                 background: "#fff",
                 color: "#111",
@@ -143,6 +146,7 @@ export function LyricInput({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 maxWidth: "min(90vw, 28rem)",
+                fontSize: "0.525rem", // ~70% of 0.75rem (text-xs)
               }}
             >
               {clue}
