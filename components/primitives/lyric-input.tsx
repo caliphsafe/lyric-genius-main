@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { Input } from "@/components/ui/input"
 import { useState, useRef, useEffect } from "react"
 
@@ -29,20 +28,16 @@ export function LyricInput({
   onBlur,
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
-  const [showTooltip, setShowTooltip] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
 
   const handleFocus = () => {
     setState("focused")
-    setShowTooltip(true)
     onFocus?.()
   }
 
   const handleBlur = () => {
     onBlur?.()
-    setShowTooltip(false)
-
     if (value.trim() && state !== "correct") {
       validateAnswer()
     } else if (!value.trim()) {
@@ -54,7 +49,6 @@ export function LyricInput({
     if (e.key === "Enter" && value.trim()) {
       // Validate but DO NOT blur — keeps the viewport from jumping
       validateAnswer()
-      // inputRef.current?.blur()  // intentionally not blurring
     }
   }
 
@@ -72,13 +66,10 @@ export function LyricInput({
       setState(isCorrect ? "correct" : "incorrect")
 
       if (isCorrect) {
-        setShowTooltip(false)
         setTimeout(() => {
           // keep correct state; do not change focus
         }, 300)
       } else {
-        // keep tooltip visible to help the user retry
-        setShowTooltip(true)
         setTimeout(() => {
           setState("idle")
         }, 1500)
@@ -94,16 +85,29 @@ export function LyricInput({
     }
   }, [])
 
+  // NOTE:
+  // - Removed previous fixed text sizes (text-lg/md/lg).
+  // - Forced compact font size with important so it overrides any UI lib defaults.
+  // - Compact width/height so lines fit on mobile.
   const getInputStyles = () => {
-    // ↓ Reduced to ~70% of previous sizes:
-    //   was: text-lg (1.125rem) / md:text-xl (1.25rem) / lg:text-2xl (1.5rem)
-    //   now: ~0.79rem / 0.88rem / 1.05rem
     const baseStyles =
-      "inline-flex w-32 h-10 rounded-xl text-[0.79rem] md:text-[0.88rem] lg:text-[1.05rem] font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
+      [
+        "inline-flex",
+        "w-24", "md:w-28", "lg:w-32",
+        "h-8", "md:h-9", "lg:h-10",
+        "rounded-xl",
+        "!text-[0.7rem]", "md:!text-[0.85rem]", "lg:!text-[1rem]",
+        "font-black",
+        "uppercase",
+        "border-none",
+        "transition-all", "duration-300",
+        "relative", "overflow-hidden",
+        "text-center",
+      ].join(" ")
 
     switch (state) {
       case "checking":
-        return `${baseStyles} text-white animate-pulse`
+        return `${baseStyles} text-white animate-fill-left-to-right animate-pulse`
       case "correct":
         return `${baseStyles} text-white animate-scale-success`
       case "incorrect":
@@ -133,27 +137,6 @@ export function LyricInput({
   return (
     <div className="relative inline-block ml-1 overflow-visible">
       <div className="relative overflow-visible">
-        {/* Tooltip: single-line, centered above input (also scaled down ~70%) */}
-        {showTooltip && (
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 pointer-events-none z-20">
-            <div
-              className="rounded-lg px-3 py-2 font-medium whitespace-nowrap"
-              style={{
-                background: "#fff",
-                color: "#111",
-                boxShadow:
-                  "0 8px 24px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                maxWidth: "min(90vw, 28rem)",
-                fontSize: "0.525rem", // ~70% of 0.75rem (text-xs)
-              }}
-            >
-              {clue}
-            </div>
-          </div>
-        )}
-
         <Input
           ref={inputRef}
           value={value}
@@ -167,10 +150,9 @@ export function LyricInput({
           disabled={state === "checking" || state === "correct"}
         />
 
-        {/* Loading animation overlay — does not block input */}
         {state === "checking" && (
           <div
-            className="pointer-events-none absolute inset-0 rounded-xl animate-fill-progress"
+            className="absolute inset-0 rounded-xl animate-fill-progress"
             style={{
               background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
               animation: "fillProgress 0.8s ease-out forwards",
