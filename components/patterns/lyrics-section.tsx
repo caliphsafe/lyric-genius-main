@@ -195,7 +195,6 @@ export function LyricsSection({
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(7) ? "text-black" : "text-black/25"}`}>
               MET HER AT A PARTY I WAS BUSY TRYNA CUT A
-            </span>
             <LyricInput
               value={guesses[3]?.value || ""}
               onChange={wrapOnChange(guesses[3]?.onChange, "rug")}
@@ -203,7 +202,7 @@ export function LyricsSection({
               clue={guesses[3]?.clue}
               onFocus={onFocusClue(guesses[3]?.clue)}
               onBlur={() => setFocusedWord(null)}
-            />
+            /></span>
           </div>
 
           <p className={`font-black uppercase ${isLyricActive(8) ? "text-black" : "text-black/25"}`}>
