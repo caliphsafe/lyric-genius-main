@@ -37,9 +37,8 @@ export function LyricInput({
   const [isMounted, setIsMounted] = useState(false)
   const tipRef = useRef<HTMLDivElement>(null)
 
-  // Tooltip positioning (centered horizontally; arrow points at the input)
+  // Only compute vertical position; horizontal is centered via flexbox
   const [tipStyle, setTipStyle] = useState<React.CSSProperties>({})
-  const [arrowLeft, setArrowLeft] = useState<number>(0)
 
   useEffect(() => setIsMounted(true), [])
 
@@ -47,33 +46,31 @@ export function LyricInput({
     if (!inputRef.current || !tipRef.current) return
     const rect = inputRef.current.getBoundingClientRect()
 
-    const viewportW =
-      (typeof window !== "undefined" && (window as any).visualViewport?.width) ||
-      window.innerWidth
-    const tipW = tipRef.current.offsetWidth
+    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
+    const viewportH = vv?.height ?? window.innerHeight
+
+    // Measure tooltip height (after it's rendered)
     const tipH = tipRef.current.offsetHeight
 
-    // horizontally center the tooltip in the viewport
-    const left = Math.max(8, (viewportW - tipW) / 2)
-    // put the tooltip above the input; add a little gap
+    // Place tooltip above the input, with an 8px gap; clamp to at least 8px from top
     const top = Math.max(8, rect.top - tipH - 8)
-
-    // arrow should point to the input's horizontal center
-    const inputCenterX = rect.left + rect.width / 2
-    const arrowX = inputCenterX - left
-    // clamp arrow inside tooltip width (with a small padding)
-    const clampedArrowX = Math.max(12, Math.min(arrowX, tipW - 12))
 
     setTipStyle({
       position: "fixed",
       top,
-      left,
+      left: 0,
+      right: 0,
       zIndex: 60,
+      display: "flex",
+      justifyContent: "center",
+      pointerEvents: "none",
+      paddingLeft: 16,
+      paddingRight: 16,
+      // keep inside viewport height if layout shifts
+      maxHeight: viewportH - 8,
     })
-    setArrowLeft(clampedArrowX)
   }
 
-  // Recompute position on focus and on layout changes
   useLayoutEffect(() => {
     if (!showTip) return
     positionTooltip()
@@ -89,7 +86,6 @@ export function LyricInput({
       vv.addEventListener("scroll", onResize)
     }
 
-    // in case fonts/layout settle after paint
     const raf = requestAnimationFrame(positionTooltip)
 
     return () => {
@@ -108,7 +104,7 @@ export function LyricInput({
   const handleFocus = () => {
     setState("focused")
     setShowTip(true)
-    // small delay so the DOM has sizes before we measure
+    // Let layout settle before measuring
     requestAnimationFrame(positionTooltip)
     onFocus?.()
   }
@@ -125,7 +121,7 @@ export function LyricInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim()) {
-      // validate but keep focus so the viewport doesn't jump
+      // validate but keep focus; avoids scroll jump
       validateAnswer()
     }
   }
@@ -142,7 +138,7 @@ export function LyricInput({
 
       if (isCorrect) {
         setTimeout(() => {
-          // keep correct state
+          // remain correct
         }, 300)
       } else {
         setTimeout(() => {
@@ -161,6 +157,7 @@ export function LyricInput({
   const getInputStyles = () => {
     const baseStyles =
       "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
+
     switch (state) {
       case "checking":
         return `${baseStyles} text-white animate-fill-left-to-right animate-pulse`
@@ -206,7 +203,6 @@ export function LyricInput({
           disabled={state === "checking" || state === "correct"}
         />
 
-        {/* “checking” overlay */}
         {state === "checking" && (
           <div
             className="absolute inset-0 rounded-xl animate-fill-progress"
@@ -218,34 +214,18 @@ export function LyricInput({
         )}
       </div>
 
-      {/* Centered tooltip in a portal with arrow pointing to this input */}
+      {/* Centered, arrowless tooltip (portal) */}
       {isMounted && showTip && state !== "correct" && clue && createPortal(
-        <div
-          ref={tipRef}
-          style={tipStyle}
-          className="pointer-events-none"
-        >
+        <div style={tipStyle}>
           <div
+            ref={tipRef}
             className="pointer-events-auto rounded-xl shadow-md border border-black/10 bg-white px-3 py-2 text-[13px] leading-snug font-medium animate-tooltip-in"
-            style={{ maxWidth: "min(92vw, 520px)" }}
+            style={{
+              maxWidth: "min(92vw, 520px)",
+              textAlign: "center",
+            }}
           >
             {clue}
-            {/* arrow */}
-            <span
-              aria-hidden
-              className="absolute block"
-              style={{
-                position: "absolute",
-                left: `${arrowLeft}px`,
-                bottom: -6, // arrow height
-                width: 12,
-                height: 12,
-                transform: "translateX(-50%) rotate(45deg)",
-                background: "white",
-                borderLeft: "1px solid rgba(0,0,0,0.1)",
-                borderBottom: "1px solid rgba(0,0,0,0.1)",
-              }}
-            />
           </div>
         </div>,
         document.body
