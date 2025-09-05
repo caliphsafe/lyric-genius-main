@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { Input } from "@/components/ui/input"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
+import { Input } from "@/components/ui/input"
 
 interface LyricInputProps {
   value: string
@@ -32,53 +32,90 @@ export function LyricInput({
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
 
-  // Tooltip positioning
+  // Tooltip controls
+  const [showTip, setShowTip] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const tipRef = useRef<HTMLDivElement>(null)
-  const [tipTop, setTipTop] = useState<number | null>(null)
-  const [tipLeft, setTipLeft] = useState<number | null>(null)
+
+  // Tooltip positioning (centered horizontally; arrow points at the input)
+  const [tipStyle, setTipStyle] = useState<React.CSSProperties>({})
   const [arrowLeft, setArrowLeft] = useState<number>(0)
-  const [placeBelow, setPlaceBelow] = useState(false)
 
-  const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n))
+  useEffect(() => setIsMounted(true), [])
 
-  const updateTooltipPosition = () => {
-    if (!inputRef.current) return
+  const positionTooltip = () => {
+    if (!inputRef.current || !tipRef.current) return
     const rect = inputRef.current.getBoundingClientRect()
 
-    // Tooltip size (fallbacks before it renders)
-    const tipW = tipRef.current?.offsetWidth ?? 260
-    const tipH = tipRef.current?.offsetHeight ?? 40
+    const viewportW =
+      (typeof window !== "undefined" && (window as any).visualViewport?.width) ||
+      window.innerWidth
+    const tipW = tipRef.current.offsetWidth
+    const tipH = tipRef.current.offsetHeight
 
-    const margin = 8
-    const viewportW = window.innerWidth
+    // horizontally center the tooltip in the viewport
+    const left = Math.max(8, (viewportW - tipW) / 2)
+    // put the tooltip above the input; add a little gap
+    const top = Math.max(8, rect.top - tipH - 8)
+
+    // arrow should point to the input's horizontal center
     const inputCenterX = rect.left + rect.width / 2
+    const arrowX = inputCenterX - left
+    // clamp arrow inside tooltip width (with a small padding)
+    const clampedArrowX = Math.max(12, Math.min(arrowX, tipW - 12))
 
-    // Center over input, clamp inside viewport
-    const desiredLeft = inputCenterX - tipW / 2
-    const clampedLeft = clamp(desiredLeft, margin, viewportW - tipW - margin)
-
-    // Arrow position within tooltip box
-    const arrowX = clamp(inputCenterX - clampedLeft, 10, tipW - 10)
-
-    // Prefer above; flip below if not enough room
-    const aboveTop = rect.top - tipH - margin
-    const belowTop = rect.bottom + margin
-    const canPlaceAbove = aboveTop >= margin
-
-    setPlaceBelow(!canPlaceAbove)
-    setTipTop(canPlaceAbove ? aboveTop : belowTop)
-    setTipLeft(clampedLeft)
-    setArrowLeft(arrowX)
+    setTipStyle({
+      position: "fixed",
+      top,
+      left,
+      zIndex: 60,
+    })
+    setArrowLeft(clampedArrowX)
   }
+
+  // Recompute position on focus and on layout changes
+  useLayoutEffect(() => {
+    if (!showTip) return
+    positionTooltip()
+    const vv = (typeof window !== "undefined" && (window as any).visualViewport) as VisualViewport | undefined
+
+    const onScroll = () => positionTooltip()
+    const onResize = () => positionTooltip()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onResize)
+    window.addEventListener("orientationchange", onResize)
+    if (vv) {
+      vv.addEventListener("resize", onResize)
+      vv.addEventListener("scroll", onResize)
+    }
+
+    // in case fonts/layout settle after paint
+    const raf = requestAnimationFrame(positionTooltip)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onResize)
+      window.removeEventListener("orientationchange", onResize)
+      if (vv) {
+        vv.removeEventListener("resize", onResize)
+        vv.removeEventListener("scroll", onResize)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showTip, value])
 
   const handleFocus = () => {
     setState("focused")
+    setShowTip(true)
+    // small delay so the DOM has sizes before we measure
+    requestAnimationFrame(positionTooltip)
     onFocus?.()
-    updateTooltipPosition()
   }
 
   const handleBlur = () => {
     onBlur?.()
+    setShowTip(false)
     if (value.trim() && state !== "correct") {
       validateAnswer()
     } else if (!value.trim()) {
@@ -88,8 +125,8 @@ export function LyricInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim()) {
+      // validate but keep focus so the viewport doesn't jump
       validateAnswer()
-      // Do NOT blur on Enter — prevents jump
     }
   }
 
@@ -104,35 +141,16 @@ export function LyricInput({
       setState(isCorrect ? "correct" : "incorrect")
 
       if (isCorrect) {
-        setTimeout(() => {}, 300)
+        setTimeout(() => {
+          // keep correct state
+        }, 300)
       } else {
-        setTimeout(() => setState("idle"), 1500)
+        setTimeout(() => {
+          setState("idle")
+        }, 1500)
       }
     }, 800)
   }
-
-  // Recalculate after tooltip mounts (to get real width/height)
-  useLayoutEffect(() => {
-    if (state !== "focused") return
-    const id = requestAnimationFrame(updateTooltipPosition)
-    return () => cancelAnimationFrame(id)
-  }, [state, clue])
-
-  // Keep synced on scroll/resize/orientation changes
-  useEffect(() => {
-    if (state !== "focused") return
-    const onMove = () => updateTooltipPosition()
-
-    // Use capture on scroll so we reflow before painting
-    window.addEventListener("scroll", onMove, true)
-    window.addEventListener("resize", onMove)
-    window.addEventListener("orientationchange", onMove)
-    return () => {
-      window.removeEventListener("scroll", onMove, true)
-      window.removeEventListener("resize", onMove)
-      window.removeEventListener("orientationchange", onMove)
-    }
-  }, [state])
 
   useEffect(() => {
     return () => {
@@ -143,10 +161,9 @@ export function LyricInput({
   const getInputStyles = () => {
     const baseStyles =
       "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
-
     switch (state) {
       case "checking":
-        return `${baseStyles} text-white animate-pulse`
+        return `${baseStyles} text-white animate-fill-left-to-right animate-pulse`
       case "correct":
         return `${baseStyles} text-white animate-scale-success`
       case "incorrect":
@@ -174,76 +191,65 @@ export function LyricInput({
   }
 
   return (
-    <>
-      {/* Tooltip (portal) */}
-      {state === "focused" && clue && tipTop !== null && tipLeft !== null &&
-        createPortal(
+    <div className="relative inline-block ml-1 overflow-visible">
+      <div className="relative overflow-visible">
+        <Input
+          ref={inputRef}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
+          style={getBackgroundStyle()}
+          placeholder={placeholder}
+          disabled={state === "checking" || state === "correct"}
+        />
+
+        {/* “checking” overlay */}
+        {state === "checking" && (
           <div
-            ref={tipRef}
-            role="tooltip"
-            className="pointer-events-none fixed z-[70] w-max max-w-[min(85vw,360px)] rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-sm animate-tooltip-in"
+            className="absolute inset-0 rounded-xl animate-fill-progress"
             style={{
-              top: tipTop,
-              left: tipLeft,
-              boxShadow: "0 1px 0 rgba(0,0,0,0.1), 0 6px 14px rgba(0,0,0,0.08)",
+              background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
+              animation: "fillProgress 0.8s ease-out forwards",
             }}
+          />
+        )}
+      </div>
+
+      {/* Centered tooltip in a portal with arrow pointing to this input */}
+      {isMounted && showTip && state !== "correct" && clue && createPortal(
+        <div
+          ref={tipRef}
+          style={tipStyle}
+          className="pointer-events-none"
+        >
+          <div
+            className="pointer-events-auto rounded-xl shadow-md border border-black/10 bg-white px-3 py-2 text-[13px] leading-snug font-medium animate-tooltip-in"
+            style={{ maxWidth: "min(92vw, 520px)" }}
           >
             {clue}
+            {/* arrow */}
             <span
-              className="absolute"
+              aria-hidden
+              className="absolute block"
               style={{
-                left: arrowLeft,
-                transform: "translateX(-50%)",
-                ...(placeBelow
-                  ? {
-                      bottom: "100%",
-                      width: 0,
-                      height: 0,
-                      borderLeft: "6px solid transparent",
-                      borderRight: "6px solid transparent",
-                      borderBottom: "6px solid #ffffff",
-                    }
-                  : {
-                      top: "100%",
-                      width: 0,
-                      height: 0,
-                      borderLeft: "6px solid transparent",
-                      borderRight: "6px solid transparent",
-                      borderTop: "6px solid #ffffff",
-                    }),
+                position: "absolute",
+                left: `${arrowLeft}px`,
+                bottom: -6, // arrow height
+                width: 12,
+                height: 12,
+                transform: "translateX(-50%) rotate(45deg)",
+                background: "white",
+                borderLeft: "1px solid rgba(0,0,0,0.1)",
+                borderBottom: "1px solid rgba(0,0,0,0.1)",
               }}
             />
-          </div>,
-          document.body
-        )
-      }
-
-      <div className="relative inline-block ml-1 overflow-visible">
-        <div className="relative overflow-visible">
-          <Input
-            ref={inputRef}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onKeyDown={handleKeyDown}
-            className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
-            style={getBackgroundStyle()}
-            placeholder={placeholder}
-            disabled={state === "checking" || state === "correct"}
-          />
-
-          {state === "checking" && (
-            <div
-              className="absolute inset-0 rounded-xl animate-fill-progress"
-              style={{
-                background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
-                animation: "fillProgress 0.8s ease-out forwards",
-              }}
-            />
-          )}
-        </div>
-      </div>
-    </>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
   )
 }
