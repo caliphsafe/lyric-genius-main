@@ -804,7 +804,7 @@ export function LyricsSection({
             <LyricInput
               value={guesses[32]?.value || ""}
               onChange={wrapOnChange(guesses[32]?.onChange, "immigrant")}
-              correctAnswer="baobab"
+              correctAnswer="immigrant"
               clue={guesses[32]?.clue}
               onFocus={onFocusClue(guesses[32]?.clue)}
               onBlur={() => setFocusedWord(null)}
