@@ -32,7 +32,7 @@ export function LyricInput({
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // --- Tooltip via portal: measured position in viewport ---
+  // Tooltip via portal
   const tooltipRef = useRef<HTMLDivElement>(null)
   const [tooltipPos, setTooltipPos] = useState<{ left: number; bottom: number } | null>(null)
   const showTooltip = state === "focused" && !!clue
@@ -57,67 +57,71 @@ export function LyricInput({
 
     const rect = inputEl.getBoundingClientRect()
 
-    // Measure tooltip width to clamp within viewport
+    // Use visual viewport on iOS so keyboard doesn’t throw off vertical math
+    const vv = window.visualViewport
+    const viewportWidth = vv?.width ?? window.innerWidth
+    const viewportHeight = vv?.height ?? window.innerHeight
+
+    // measure tip width for clamping
     const tipWidth = tipEl.offsetWidth || 0
-    const vw = window.innerWidth
-    const edgePadding = 8 // keep a little space from screen edges
+    const edgePadding = 8
 
     const centerX = rect.left + rect.width / 2
-    const leftEdge = clamp(centerX - tipWidth / 2, edgePadding, Math.max(edgePadding, vw - tipWidth - edgePadding))
+    const leftEdge = clamp(
+      centerX - tipWidth / 2,
+      edgePadding,
+      Math.max(edgePadding, viewportWidth - tipWidth - edgePadding)
+    )
 
-    // Place tooltip ABOVE the input without needing its height:
-    // use bottom based on the input's top
-    const bottom = Math.max(0, window.innerHeight - rect.top + 8) // 8px gap above input
+    // Place ABOVE the input with an 8px gap
+    const bottom = Math.max(0, viewportHeight - rect.top + 8)
 
     setTooltipPos({ left: Math.round(leftEdge), bottom: Math.round(bottom) })
   }
 
-  // Keep tooltip glued to input on focus + while visible
+  // Reposition while visible: scroll, resize, keyboard, typing
   useEffect(() => {
     if (!showTooltip) return
 
-    // First frame after mount to ensure we can measure size
+    // Ensure the portal node exists, then measure
     const raf = requestAnimationFrame(updateTooltipPos)
 
-    const scrollParents = getScrollParents(inputRef.current)
     const onScroll = () => updateTooltipPos()
     const onResize = () => updateTooltipPos()
 
-    // VisualViewport changes (iOS keyboard)
+    const scrollParents = getScrollParents(inputRef.current)
+    for (const p of scrollParents) {
+      ;(p as Element | Window).addEventListener("scroll", onScroll, { passive: true } as any)
+    }
+    window.addEventListener("resize", onResize)
+
     const vv = window.visualViewport
     vv?.addEventListener("resize", onResize)
     vv?.addEventListener("scroll", onResize)
 
-    window.addEventListener("resize", onResize)
-    for (const p of scrollParents) {
-      // `scroll` doesn’t bubble, attach to each scrollable ancestor
-      ;(p as Element | Window).addEventListener("scroll", onScroll, { passive: true } as any)
-    }
-
-    // Also reposition as the user types (width of input may change)
     const inputEl = inputRef.current
     inputEl?.addEventListener("input", onResize)
 
     return () => {
       cancelAnimationFrame(raf)
-      vv?.removeEventListener("resize", onResize)
-      vv?.removeEventListener("scroll", onResize)
-      window.removeEventListener("resize", onResize)
       for (const p of scrollParents) {
         ;(p as Element | Window).removeEventListener("scroll", onScroll)
       }
+      window.removeEventListener("resize", onResize)
+      vv?.removeEventListener("resize", onResize)
+      vv?.removeEventListener("scroll", onResize)
       inputEl?.removeEventListener("input", onResize)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showTooltip])
 
-  // Also recalc whenever value changes while focused (mobile caret jumps, etc.)
+  // Also recalc when value changes while focused
   useLayoutEffect(() => {
     if (showTooltip) updateTooltipPos()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, showTooltip])
 
-  // --- Input state handling ---
+  // Input state handling
   const handleFocus = () => {
     setState("focused")
     onFocus?.()
@@ -134,9 +138,8 @@ export function LyricInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim()) {
-      // Validate but DO NOT blur — keeps viewport steady
       validateAnswer()
-      // inputRef.current?.blur() // intentionally disabled
+      // no blur -> prevents scroll jump
     }
   }
 
@@ -218,7 +221,6 @@ export function LyricInput({
             disabled={state === "checking" || state === "correct"}
           />
 
-          {/* Loading animation overlay */}
           {state === "checking" && (
             <div
               className="absolute inset-0 rounded-xl animate-fill-progress pointer-events-none"
@@ -231,21 +233,22 @@ export function LyricInput({
         </div>
       </div>
 
-      {/* Portal tooltip: centered, clamped to viewport, no arrow */}
-      {showTooltip && tooltipPos &&
+      {/* Portal tooltip: render even before measured; hidden until we have a position */}
+      {showTooltip &&
         createPortal(
           <div
             ref={tooltipRef}
             role="tooltip"
             className="pointer-events-none fixed z-[1000] animate-tooltip-in"
             style={{
-              left: tooltipPos.left,
-              bottom: tooltipPos.bottom,
+              visibility: tooltipPos ? "visible" : "hidden",
+              left: tooltipPos?.left ?? 0,
+              bottom: tooltipPos?.bottom ?? 0,
               maxWidth: "min(92vw, 420px)",
             }}
           >
             <div
-              className="rounded-lg px-3 py-2 text-xs font-medium shadow-md"
+              className="rounded-lg px-3 py-2 text-xs font-medium shadow-md tooltip-reset"
               style={{
                 background: "#fff",
                 color: "#111",
