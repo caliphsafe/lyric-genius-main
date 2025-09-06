@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { LyricsSection } from "@/components/patterns/lyrics-section"
 import { AudioPlayer } from "@/components/patterns/audio-player"
 
@@ -43,10 +43,9 @@ export function LyricGameView() {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration] = useState(120)
 
-  // optional, still passed down by LyricsSection but not rendered as a bar anymore
+  // NEW: this is now rendered as a banner under the logo
   const [activeClue, setActiveClue] = useState<string | null>(null)
 
-  // Simulated playback tick
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isPlaying && currentTime < duration) {
@@ -111,13 +110,43 @@ export function LyricGameView() {
 
   return (
     <div className="h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: "#FFFF64" }}>
-      {/* TOP: logo only, with divider underneath */}
+      {/* TOP: logo, then dynamic clue banner (if any), then divider */}
       <div className="shrink-0 w-full" style={{ backgroundColor: "#FFFF64" }}>
-        <div className="mx-auto max-w-[1024px] px-4 pt-4 pb-3">
+        <div className="mx-auto max-w-[1024px] px-4 pt-4 pb-2">
           <div className="flex justify-center">
             <img src="/lyric-genius-logo.svg" alt="Lyric Genius" className="w-20 h-auto" />
           </div>
+
+          {/* Clue banner under logo (arrow points up to the logo) */}
+          {activeClue && (
+            <div className="relative mt-3">
+              {/* arrow */}
+              <div
+                className="absolute left-1/2 -translate-x-1/2 -top-2 w-0 h-0"
+                style={{
+                  borderLeft: "8px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderBottom: "8px solid #ffffff",
+                  filter:
+                    "drop-shadow(0 1px 0 rgba(0,0,0,0.06)) drop-shadow(0 2px 8px rgba(0,0,0,0.12))",
+                }}
+              />
+              <div
+                className="rounded-lg px-3 py-2 text-sm font-medium text-center"
+                style={{
+                  background: "#fff",
+                  color: "#111",
+                  boxShadow:
+                    "0 8px 24px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)",
+                }}
+              >
+                {activeClue}
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* divider below the header/logo area */}
         <div className="border-b border-black/10" />
       </div>
 
@@ -131,7 +160,7 @@ export function LyricGameView() {
         />
       </div>
 
-      {/* Divider between lyrics and the player (restored) */}
+      {/* Divider between lyrics and the player */}
       <div className="border-t border-black/10" />
 
       {/* PLAYER + footer */}
