@@ -14,6 +14,8 @@ interface LyricInputProps {
   clue?: string
   onFocus?: () => void
   onBlur?: () => void
+  /** NEW: turn off this component’s built-in tooltip (we’ll show clues under the logo instead) */
+  disableTooltip?: boolean
 }
 
 type InputState = "idle" | "focused" | "checking" | "correct" | "incorrect"
@@ -27,6 +29,7 @@ export function LyricInput({
   clue = "Think about the context...",
   onFocus,
   onBlur,
+  disableTooltip = false, // NEW
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
   const [showTooltip, setShowTooltip] = useState(false)
@@ -35,7 +38,7 @@ export function LyricInput({
 
   const handleFocus = () => {
     setState("focused")
-    setShowTooltip(true)
+    if (!disableTooltip) setShowTooltip(true) // CHANGED: respect disableTooltip
     onFocus?.()
   }
 
@@ -52,9 +55,7 @@ export function LyricInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim()) {
-      // Validate but DO NOT blur — keeps the viewport from jumping
       validateAnswer()
-      // inputRef.current?.blur()  // intentionally not blurring
     }
   }
 
@@ -63,9 +64,7 @@ export function LyricInput({
 
     setState("checking")
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
     timeoutRef.current = setTimeout(() => {
       const isCorrect = value.trim().toLowerCase() === correctAnswer.toLowerCase()
@@ -73,12 +72,9 @@ export function LyricInput({
 
       if (isCorrect) {
         setShowTooltip(false)
-        setTimeout(() => {
-          // keep correct state; do not change focus
-        }, 300)
+        setTimeout(() => {}, 300)
       } else {
-        // keep tooltip visible to help the user retry
-        setShowTooltip(true)
+        if (!disableTooltip) setShowTooltip(true) // CHANGED: respect disableTooltip
         setTimeout(() => {
           setState("idle")
         }, 1500)
@@ -88,9 +84,7 @@ export function LyricInput({
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
   }, [])
 
@@ -128,10 +122,10 @@ export function LyricInput({
   }
 
   return (
-    <div className="relative inline-block ml-1 overflow-visible">
+    <div className="relative inline-block ml-1 pl-2 overflow-visible">
       <div className="relative overflow-visible">
-        {/* Tooltip: single-line, centered above input */}
-        {showTooltip && (
+        {/* Tooltip (now gated by disableTooltip) */}
+        {!disableTooltip && showTooltip && (
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 pointer-events-none z-20">
             <div
               className="rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap"
@@ -163,7 +157,6 @@ export function LyricInput({
           disabled={state === "checking" || state === "correct"}
         />
 
-        {/* Loading animation overlay — does not block input */}
         {state === "checking" && (
           <div
             className="pointer-events-none absolute inset-0 rounded-xl animate-fill-progress"
