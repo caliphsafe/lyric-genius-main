@@ -67,7 +67,7 @@ export function LyricGameView() {
     { id: "guess0", value: guess0, onChange: setGuess0, correctAnswer: "bitch", clue: "A FEMALE DOG", showTooltip: false },
     { id: "guess1", value: guess1, onChange: setGuess1, correctAnswer: "court", clue: "WHERE PEOPLE PLAY BASKETBALL, OR GET SUED", showTooltip: false },
     { id: "guess2", value: guess2, onChange: setGuess2, correctAnswer: "first", clue: "NUMBER ONE, BEFORE ALL OTHERS", showTooltip: false },
-    { id: "guess3", value: guess3, onChange: setGuess3, correctAnswer: "rug", clue: "FLOOR COVERING, ANOTHER WORD FOR A CARPET", showTooltip: false },
+    { id: "guess3", value: guess3, onChange: setGuess3, correctAnswer: "rug", clue: "ANOTHER WORD FOR A CARPET", showTooltip: false },
     { id: "guess4", value: guess4, onChange: setGuess4, correctAnswer: "budden", clue: "JOE ______ PODCAST, 'SUDDEN' WITH A B", showTooltip: false },
     { id: "guess5", value: guess5, onChange: setGuess5, correctAnswer: "buttercup", clue: "THE GREEN POWERPUFF GIRL", showTooltip: false },
     { id: "guess6", value: guess6, onChange: setGuess6, correctAnswer: "butternut", clue: "TYPE OF SQUASH, RHYMES WITH THE PREVIOUS ANSWER", showTooltip: false },
