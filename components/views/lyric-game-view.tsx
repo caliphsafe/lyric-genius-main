@@ -137,7 +137,7 @@ export function LyricGameView() {
       {/* PLAYER + footer */}
       <div className="shrink-0 w-full">
         <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
-          <div className="mx-auto max-w-[1024px] w-full px-4 pt-3 pb-3">
+          <div className="mx-auto max-w-[1024px] w-full px-3 py-2 sm:px-4 sm:py-3">
             <AudioPlayer
               currentTime={formatTime(currentTime)}
               totalTime={formatTime(duration)}
