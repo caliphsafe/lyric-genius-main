@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { Input } from "@/components/ui/input"
 import { useState, useRef, useEffect } from "react"
 
@@ -14,7 +13,7 @@ interface LyricInputProps {
   clue?: string
   onFocus?: () => void
   onBlur?: () => void
-  /** NEW: turn off this component’s built-in tooltip (we’ll show clues under the logo instead) */
+  /** NEW: turn off the inline tooltip (we’ll show the clue under the logo) */
   disableTooltip?: boolean
 }
 
@@ -38,7 +37,7 @@ export function LyricInput({
 
   const handleFocus = () => {
     setState("focused")
-    if (!disableTooltip) setShowTooltip(true) // CHANGED: respect disableTooltip
+    if (!disableTooltip) setShowTooltip(true)
     onFocus?.()
   }
 
@@ -54,16 +53,12 @@ export function LyricInput({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && value.trim()) {
-      validateAnswer()
-    }
+    if (e.key === "Enter" && value.trim()) validateAnswer()
   }
 
   const validateAnswer = () => {
     if (state === "checking" || state === "correct") return
-
     setState("checking")
-
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
     timeoutRef.current = setTimeout(() => {
@@ -72,59 +67,34 @@ export function LyricInput({
 
       if (isCorrect) {
         setShowTooltip(false)
-        setTimeout(() => {}, 300)
       } else {
-        if (!disableTooltip) setShowTooltip(true) // CHANGED: respect disableTooltip
-        setTimeout(() => {
-          setState("idle")
-        }, 1500)
+        if (!disableTooltip) setShowTooltip(true)
+        setTimeout(() => setState("idle"), 1500)
       }
     }, 800)
   }
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    }
-  }, [])
+  useEffect(() => () => timeoutRef.current && clearTimeout(timeoutRef.current), [])
 
-  const getInputStyles = () => {
-    const baseStyles =
-      "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
+  const baseStyles =
+    "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
+  const getInputStyles = () =>
+    state === "checking" ? `${baseStyles} text-white animate-pulse`
+    : state === "correct" ? `${baseStyles} text-white animate-scale-success`
+    : state === "incorrect" ? `${baseStyles} text-white`
+    : `${baseStyles} text-black placeholder:text-gray-600`
 
-    switch (state) {
-      case "checking":
-        return `${baseStyles} text-white animate-pulse`
-      case "correct":
-        return `${baseStyles} text-white animate-scale-success`
-      case "incorrect":
-        return `${baseStyles} text-white`
-      case "focused":
-        return `${baseStyles} text-black placeholder:text-gray-600`
-      default:
-        return `${baseStyles} text-black placeholder:text-gray-600`
-    }
-  }
-
-  const getBackgroundStyle = () => {
-    switch (state) {
-      case "checking":
-        return { background: "rgba(0, 0, 0, 0.06)", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
-      case "correct":
-        return { background: "#37DB00", boxShadow: "0 0 0 1px #37DB00" }
-      case "incorrect":
-        return { background: "#FF4043", boxShadow: "0 0 0 1px #FF4043" }
-      case "focused":
-        return { background: "#FFFFFF", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
-      default:
-        return { background: "rgba(0, 0, 0, 0.06)", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
-    }
-  }
+  const styleByState =
+    state === "checking" ? { background: "rgba(0,0,0,0.06)", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }
+    : state === "correct" ? { background: "#37DB00", boxShadow: "0 0 0 1px #37DB00" }
+    : state === "incorrect" ? { background: "#FF4043", boxShadow: "0 0 0 1px #FF4043" }
+    : state === "focused" ? { background: "#FFFFFF", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }
+    : { background: "rgba(0,0,0,0.06)", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }
 
   return (
     <div className="relative inline-block ml-1 pl-2 overflow-visible">
       <div className="relative overflow-visible">
-        {/* Tooltip (now gated by disableTooltip) */}
+        {/* Inline tooltip is disabled via prop */}
         {!disableTooltip && showTooltip && (
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 pointer-events-none z-20">
             <div
@@ -152,7 +122,7 @@ export function LyricInput({
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
-          style={getBackgroundStyle()}
+          style={styleByState}
           placeholder={placeholder}
           disabled={state === "checking" || state === "correct"}
         />
@@ -161,7 +131,8 @@ export function LyricInput({
           <div
             className="pointer-events-none absolute inset-0 rounded-xl animate-fill-progress"
             style={{
-              background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
+              background:
+                "linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))",
               animation: "fillProgress 0.8s ease-out forwards",
             }}
           />
