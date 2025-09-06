@@ -30,12 +30,32 @@ export function LyricInput({
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
   const [showTooltip, setShowTooltip] = useState(false)
+  const [tooltipPos, setTooltipPos] = useState<{ left: number; bottom: number } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout>()
+
+  const computeTooltip = () => {
+    if (!inputRef.current || typeof window === "undefined") return
+    const rect = inputRef.current.getBoundingClientRect()
+    const vw = window.innerWidth
+    const pad = 8 // viewport padding so tooltip never touches screen edge
+    const maxWidth = Math.min(vw - pad * 2, 448) // 28rem cap from your tooltip style
+
+    // center over the input, but clamp so the tooltip stays fully on-screen
+    const center = rect.left + rect.width / 2
+    const clampedCenter = Math.max(pad + maxWidth / 2, Math.min(vw - pad - maxWidth / 2, center))
+
+    // place tooltip just above the input (no need to know its height when using bottom)
+    const bottom = Math.max(8, window.innerHeight - rect.top + 8)
+
+    setTooltipPos({ left: clampedCenter, bottom })
+  }
 
   const handleFocus = () => {
     setState("focused")
     setShowTooltip(true)
+    // position immediately on focus
+    computeTooltip()
     onFocus?.()
   }
 
@@ -86,6 +106,28 @@ export function LyricInput({
     }, 800)
   }
 
+  // keep tooltip aligned while it's visible (scroll/resize/keyboard)
+  useEffect(() => {
+    if (!showTooltip) return
+    computeTooltip()
+
+    const handler = () => computeTooltip()
+    window.addEventListener("scroll", handler, true) // capture to catch container scrolls
+    window.addEventListener("resize", handler)
+
+    const vv = (window as any).visualViewport as VisualViewport | undefined
+    vv?.addEventListener("resize", handler)
+    vv?.addEventListener("scroll", handler)
+
+    return () => {
+      window.removeEventListener("scroll", handler, true)
+      window.removeEventListener("resize", handler)
+      vv?.removeEventListener("resize", handler)
+      vv?.removeEventListener("scroll", handler)
+    }
+    // only rebind while visible
+  }, [showTooltip])
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -130,9 +172,16 @@ export function LyricInput({
   return (
     <div className="relative inline-block ml-1 overflow-visible">
       <div className="relative overflow-visible">
-        {/* Tooltip: single-line, centered above input */}
-        {showTooltip && (
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 pointer-events-none z-20">
+        {/* Tooltip: single-line, centered above input, clamped to viewport (prevents left-edge cutoff on mobile) */}
+        {showTooltip && tooltipPos && (
+          <div
+            className="fixed pointer-events-none z-50"
+            style={{
+              left: tooltipPos.left,
+              bottom: tooltipPos.bottom,
+              transform: "translateX(-50%)",
+            }}
+          >
             <div
               className="rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap"
               style={{
