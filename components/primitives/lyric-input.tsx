@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { Input } from "@/components/ui/input"
 import { useState, useRef, useEffect } from "react"
 
@@ -13,8 +14,6 @@ interface LyricInputProps {
   clue?: string
   onFocus?: () => void
   onBlur?: () => void
-  /** NEW: turn off inline tooltip (banner under logo will show clue) */
-  disableTooltip?: boolean
 }
 
 type InputState = "idle" | "focused" | "checking" | "correct" | "incorrect"
@@ -28,7 +27,6 @@ export function LyricInput({
   clue = "Think about the context...",
   onFocus,
   onBlur,
-  disableTooltip = true, // default to true so only the header banner is used
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
   const [showTooltip, setShowTooltip] = useState(false)
@@ -37,7 +35,7 @@ export function LyricInput({
 
   const handleFocus = () => {
     setState("focused")
-    if (!disableTooltip) setShowTooltip(true)
+    setShowTooltip(true)
     onFocus?.()
   }
 
@@ -53,14 +51,21 @@ export function LyricInput({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && value.trim()) validateAnswer()
+    if (e.key === "Enter" && value.trim()) {
+      // Validate but DO NOT blur — keeps the viewport from jumping
+      validateAnswer()
+      // inputRef.current?.blur()  // intentionally not blurring
+    }
   }
 
   const validateAnswer = () => {
     if (state === "checking" || state === "correct") return
+
     setState("checking")
 
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
 
     timeoutRef.current = setTimeout(() => {
       const isCorrect = value.trim().toLowerCase() === correctAnswer.toLowerCase()
@@ -68,39 +73,65 @@ export function LyricInput({
 
       if (isCorrect) {
         setShowTooltip(false)
+        setTimeout(() => {
+          // keep correct state; do not change focus
+        }, 300)
       } else {
-        if (!disableTooltip) setShowTooltip(true)
-        setTimeout(() => setState("idle"), 1500)
+        // keep tooltip visible to help the user retry
+        setShowTooltip(true)
+        setTimeout(() => {
+          setState("idle")
+        }, 1500)
       }
     }, 800)
   }
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
     }
   }, [])
 
-  const baseStyles =
-    "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
-  const getInputStyles = () =>
-    state === "checking" ? `${baseStyles} text-white animate-pulse`
-    : state === "correct" ? `${baseStyles} text-white animate-scale-success`
-    : state === "incorrect" ? `${baseStyles} text-white`
-    : `${baseStyles} text-black placeholder:text-gray-600`
+  const getInputStyles = () => {
+    const baseStyles =
+      "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
 
-  const styleByState =
-    state === "checking" ? { background: "rgba(0,0,0,0.06)", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }
-    : state === "correct" ? { background: "#37DB00", boxShadow: "0 0 0 1px #37DB00" }
-    : state === "incorrect" ? { background: "#FF4043", boxShadow: "0 0 0 1px #FF4043" }
-    : state === "focused" ? { background: "#FFFFFF", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }
-    : { background: "rgba(0,0,0,0.06)", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }
+    switch (state) {
+      case "checking":
+        return `${baseStyles} text-white animate-pulse`
+      case "correct":
+        return `${baseStyles} text-white animate-scale-success`
+      case "incorrect":
+        return `${baseStyles} text-white`
+      case "focused":
+        return `${baseStyles} text-black placeholder:text-gray-600`
+      default:
+        return `${baseStyles} text-black placeholder:text-gray-600`
+    }
+  }
+
+  const getBackgroundStyle = () => {
+    switch (state) {
+      case "checking":
+        return { background: "rgba(0, 0, 0, 0.06)", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
+      case "correct":
+        return { background: "#37DB00", boxShadow: "0 0 0 1px #37DB00" }
+      case "incorrect":
+        return { background: "#FF4043", boxShadow: "0 0 0 1px #FF4043" }
+      case "focused":
+        return { background: "#FFFFFF", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
+      default:
+        return { background: "rgba(0, 0, 0, 0.06)", boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.12)" }
+    }
+  }
 
   return (
-    <div className="relative inline-block ml-1 pl-2 overflow-visible">
+    <div className="relative inline-block ml-1 overflow-visible">
       <div className="relative overflow-visible">
-        {/* Inline tooltip (now disabled by default) */}
-        {!disableTooltip && showTooltip && (
+        {/* Tooltip: single-line, centered above input */}
+        {showTooltip && (
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 pointer-events-none z-20">
             <div
               className="rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap"
@@ -127,17 +158,17 @@ export function LyricInput({
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
-          style={styleByState}
+          style={getBackgroundStyle()}
           placeholder={placeholder}
           disabled={state === "checking" || state === "correct"}
         />
 
+        {/* Loading animation overlay — does not block input */}
         {state === "checking" && (
           <div
             className="pointer-events-none absolute inset-0 rounded-xl animate-fill-progress"
             style={{
-              background:
-                "linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))",
+              background: `linear-gradient(90deg, #37DB00 0%, #37DB00 var(--progress, 0%), transparent var(--progress, 0%))`,
               animation: "fillProgress 0.8s ease-out forwards",
             }}
           />
