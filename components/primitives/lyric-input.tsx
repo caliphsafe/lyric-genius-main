@@ -13,7 +13,7 @@ interface LyricInputProps {
   clue?: string
   onFocus?: () => void
   onBlur?: () => void
-  /** NEW: turn off the inline tooltip (we’ll show the clue under the logo) */
+  /** NEW: turn off inline tooltip (banner under logo will show clue) */
   disableTooltip?: boolean
 }
 
@@ -28,7 +28,7 @@ export function LyricInput({
   clue = "Think about the context...",
   onFocus,
   onBlur,
-  disableTooltip = false, // NEW
+  disableTooltip = true, // default to true so only the header banner is used
 }: LyricInputProps) {
   const [state, setState] = useState<InputState>("idle")
   const [showTooltip, setShowTooltip] = useState(false)
@@ -59,6 +59,7 @@ export function LyricInput({
   const validateAnswer = () => {
     if (state === "checking" || state === "correct") return
     setState("checking")
+
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
     timeoutRef.current = setTimeout(() => {
@@ -74,7 +75,11 @@ export function LyricInput({
     }, 800)
   }
 
-  useEffect(() => () => timeoutRef.current && clearTimeout(timeoutRef.current), [])
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [])
 
   const baseStyles =
     "inline-flex w-32 h-10 rounded-xl text-lg md:text-xl lg:text-2xl font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
@@ -94,7 +99,7 @@ export function LyricInput({
   return (
     <div className="relative inline-block ml-1 pl-2 overflow-visible">
       <div className="relative overflow-visible">
-        {/* Inline tooltip is disabled via prop */}
+        {/* Inline tooltip (now disabled by default) */}
         {!disableTooltip && showTooltip && (
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 pointer-events-none z-20">
             <div
