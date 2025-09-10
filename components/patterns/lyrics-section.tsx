@@ -703,21 +703,22 @@ export function LyricsSection({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
-              WE IN THE MAKINGS OF A
-            </span>
-            <LyricInput
-              value={guesses[12]?.value || ""}
-              onChange={wrapOnChange(guesses[28]?.onChange, "matching")}
-              correctAnswer="matching"
-              clue={guesses[28]?.clue}
-              onFocus={onFocusClue(guesses[12]?.clue)}
-              onBlur={() => setFocusedWord(null)}
-            />
-            <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
-              HIS AND HERS RIGHT
-            </span>
-          </div>
+  <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
+    WE IN THE MAKINGS OF A
+  </span>
+  <LyricInput
+    value={guesses[28]?.value || ""}
+    onChange={wrapOnChange(guesses[28]?.onChange, "matching")}
+    correctAnswer="matching"
+    clue={guesses[28]?.clue}
+    onFocus={onFocusClue(guesses[28]?.clue)}
+    onBlur={() => setFocusedWord(null)}
+  />
+  <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
+    HIS AND HERS RIGHT
+  </span>
+</div>
+
 
           <p className={`font-black uppercase ${isLyricActive(63) ? "text-black" : "text-black/25"}`}>
             OR AM I JUST TRYNA SEE IT IN REVERSE LIKE…
