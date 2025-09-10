@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { LyricsSection } from "@/components/patterns/lyrics-section"
-import { AudioPlayer } from "@/components/patterns/audio-player"
 
 export function LyricGameView() {
   const [guess0, setGuess0] = useState("")
@@ -39,29 +38,10 @@ export function LyricGameView() {
   const [guess31, setGuess31] = useState("")
   const [guess32, setGuess32] = useState("")
 
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration] = useState(120)
-
-  // optional, still passed down by LyricsSection but not rendered as a bar anymore
+  // still used by tooltips in LyricInput via LyricsSection
   const [activeClue, setActiveClue] = useState<string | null>(null)
 
-  // Simulated playback tick
-  useEffect(() => {
-    let interval: NodeJS.Timeout
-    if (isPlaying && currentTime < duration) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => Math.min(prev + 1, duration))
-      }, 1000)
-    }
-    return () => clearInterval(interval)
-  }, [isPlaying, currentTime, duration])
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, "0")}`
-  }
+  // NOTE: removed all player-timer state (isPlaying/currentTime/duration/etc.)
 
   const guesses = [
     { id: "guess0", value: guess0, onChange: setGuess0, correctAnswer: "bitch", clue: "A FEMALE DOG", showTooltip: false },
@@ -99,16 +79,6 @@ export function LyricGameView() {
     { id: "guess32", value: guess32, onChange: setGuess32, correctAnswer: "immigrant", clue: "A PERSON WHO COMES TO LIVE PERMANENTLY IN A FOREIGN COUNTRY", showTooltip: false },
   ]
 
-  const handlePlayPause = () => setIsPlaying((p) => !p)
-  const handlePrevious = () => { setCurrentTime(0) }
-  const handleNext = () => { setCurrentTime(duration); setIsPlaying(false) }
-  const handleSeek = (progress: number) => {
-    const newTime = Math.floor((progress / 100) * duration)
-    setCurrentTime(newTime)
-  }
-
-  const progress = (currentTime / duration) * 100
-
   return (
     <div className="h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: "#FFFF64" }}>
       {/* TOP: logo only, with divider underneath */}
@@ -121,39 +91,20 @@ export function LyricGameView() {
         <div className="border-b border-black/10" />
       </div>
 
-      {/* LYRICS (scrollable) */}
+      {/* LYRICS (scrollable) – no currentTime passed, so no time-based highlighting */}
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-[1024px] px-4 pt-4 scrollbar-minimal">
         <LyricsSection
           verseTitle="VERSE 1"
           guesses={guesses}
-          currentTime={currentTime}
           onActiveClueChange={setActiveClue}
         />
       </div>
 
-      {/* Divider between lyrics and the player (restored) */}
+      {/* Divider between lyrics and footer */}
       <div className="border-t border-black/10" />
 
-      {/* PLAYER + footer */}
+      {/* FOOTER (kept) */}
       <div className="shrink-0 w-full">
-        <div className="w-full" style={{ backgroundColor: "#FFFF64" }}>
-          <div className="mx-auto max-w-[1024px] w-full px-3 py-2 sm:px-4 sm:py-3">
-            <AudioPlayer
-              currentTime={formatTime(currentTime)}
-              totalTime={formatTime(duration)}
-              progress={progress}
-              isPlaying={isPlaying}
-              onPrevious={handlePrevious}
-              onPlayPause={handlePlayPause}
-              onNext={handleNext}
-              onSeek={handleSeek}
-              albumTitle="Polygamy"
-              artist="Caliph"
-              albumArt="/polygamy-album.png"
-            />
-          </div>
-        </div>
-
         <div className="py-3 text-center" style={{ borderTop: "1px solid rgba(0, 0, 0, 0.08)", background: "#000" }}>
           <p className="text-xs font-medium" style={{ color: "#FFFF64" }}>
             POWERED BY KIIKU © 2025
