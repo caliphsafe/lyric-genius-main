@@ -120,7 +120,7 @@ export function LyricsSection({
       <div className="pb-8">
         <h2 className="text-base md:text-lg font-bold text-black mb-4">{verseTitle}</h2>
 
-        <div className="flex flex-col gap-3.5 text-base md:text-lg lg:text-xl leading-relaxed">
+        <div className="flex flex-col gap-3.5 text-[0.8rem] md:text-[0.9rem] lg:text-[1rem] leading-relaxed">
           {/* VERSE 1 */}
           <div className="flex flex-wrap items-center gap-2">
             <span className={`font-black uppercase ${isLyricActive(0) ? "text-black" : "text-black/25"}`}>
