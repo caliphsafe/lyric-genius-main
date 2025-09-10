@@ -28,32 +28,29 @@ export function LyricsSection({
   const [focusedWord, setFocusedWord] = useState<string | null>(null)
 
   const lyricTimings = [
-    { start: 0, end: 3 }, // YEAH, I'M IN THIS [bitch] TRYN...
-    { start: 3, end: 5 }, // UNH LOOK
-    { start: 5, end: 8 }, // I'M IN THIS BITCH TRYNA RUN IT UP
-    { start: 8, end: 11 }, // LIKE IT'S A FULL [court] PRESS...
-    { start: 11, end: 14 }, // I GOT TWO 10S WITH ME...
-    { start: 14, end: 17 }, // SHORTY CAME [first] AND...
-    { start: 17, end: 20 }, // NOW SHE GOT HER MOUTH ON IT...
-    { start: 20, end: 23 }, // MET HER AT A PARTY...
-    { start: 23, end: 26 }, // UNH, BUT FUCK IT NOW...
-    { start: 26, end: 29 }, // HER EX MAN IN THIS BITCH TRYNA [budden] UP
-    { start: 29, end: 32 }, // BRODY THOUGHT HE WAS BRAVE...
-    { start: 32, end: 35 }, // TALKING BOUT IT'S BEEF BUT HE SOFT AS A [buttercup]
-    { start: 35, end: 38 }, // SO WE SQUASHED IT [butternut]
-    { start: 38, end: 41 }, // MEANWHILE SHORTY LOOKIN LIKE...
-    { start: 41, end: 44 }, // I LOOKED BACK LIKE WHATSUP...
-    { start: 44, end: 47 }, // HER [friend] LOOK AT IS BOTH TRYNA [throuple] UP
-    { start: 47, end: 50 }, // I COULD TELL THAT SHE CAN'T...
-    { start: 50, end: 53 }, // I HIT IT THEN I DIPPED...
+    { start: 0, end: 3 },
+    { start: 3, end: 5 },
+    { start: 5, end: 8 },
+    { start: 8, end: 11 },
+    { start: 11, end: 14 },
+    { start: 14, end: 17 },
+    { start: 17, end: 20 },
+    { start: 20, end: 23 },
+    { start: 23, end: 26 },
+    { start: 26, end: 29 },
+    { start: 29, end: 32 },
+    { start: 32, end: 35 },
+    { start: 35, end: 38 },
+    { start: 38, end: 41 },
+    { start: 41, end: 44 },
+    { start: 44, end: 47 },
+    { start: 47, end: 50 },
+    { start: 50, end: 53 },
     // Continue with more timings for chorus, verse 2, etc.
   ]
 
-  const isLyricActive = (index: number) => {
-    if (index >= lyricTimings.length) return false
-    const timing = lyricTimings[index]
-    return currentTime >= timing.start && currentTime <= timing.end
-  }
+  // ✅ Disable time-based highlighting: always return true so everything is black
+  const isLyricActive = (_index: number) => true
 
   const areAllInputsCorrect = () => {
     const correctAnswers = [
@@ -107,10 +104,8 @@ export function LyricsSection({
           ? arg.target.value
           : ""
 
-      // Call original change handler
       orig?.(next)
 
-      // If this input is now correct, clear banner back to default
       if (correct && normalized(next) === normalized(correct)) {
         onActiveClueChange?.(null)
       }
@@ -121,13 +116,10 @@ export function LyricsSection({
   }
 
   return (
-    // REMOVED fixed height/overflow so the page scroll handles lyrics area
     <div className="relative">
       <div className="pb-8">
-        {/* ~20% smaller section headings */}
         <h2 className="text-base md:text-lg font-bold text-black mb-4">{verseTitle}</h2>
 
-        {/* ~20% smaller lyric text */}
         <div className="flex flex-col gap-3.5 text-base md:text-lg lg:text-xl leading-relaxed">
           {/* VERSE 1 */}
           <div className="flex flex-wrap items-center gap-2">
@@ -824,7 +816,6 @@ export function LyricsSection({
               }`}
               onClick={() => {
                 if (areAllInputsCorrect()) {
-                  // Handle game completion
                   console.log("Game completed!")
                 }
               }}
