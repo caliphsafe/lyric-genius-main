@@ -121,7 +121,7 @@ export function LyricInput({
   const getInputStyles = () => {
     // ↓↓↓ force ~80% font size and keep line-height tight; `!` beats sizes inside the base <Input>
     const baseStyles =
-      "inline-flex w-32 h-10 rounded-xl !text-[0.9rem] md:!text-[0.9rem] lg:!text-[1rem] !leading-tight " +
+      "inline-flex w-32 h-10 rounded-xl !text-[0.8rem] md:!text-[0.8rem] lg:!text-[1rem] !leading-tight " +
       "font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
 
     switch (state) {
