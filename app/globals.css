@@ -131,6 +131,17 @@
   .scrollbar-minimal::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 2px; }
   .scrollbar-minimal::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.3); }
 
+/* Prevent iOS Safari zoom on input focus by ensuring 16px font-size on iOS */
+@supports (-webkit-touch-callout: none) {
+  .ios-no-zoom,
+  input.ios-no-zoom,
+  textarea.ios-no-zoom,
+  select.ios-no-zoom {
+    font-size: 16px !important;
+  }
+}
+
+  
   /* Keep focused input clear of sticky header */
   .focus-anchor { scroll-margin-top: 140px; }
   @media (min-width: 768px) {
