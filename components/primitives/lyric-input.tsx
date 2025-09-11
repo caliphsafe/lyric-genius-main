@@ -1,7 +1,7 @@
+// LyricInput.tsx
 "use client"
 
 import type React from "react"
-
 import { Input } from "@/components/ui/input"
 import { useState, useRef, useEffect } from "react"
 
@@ -40,11 +40,9 @@ export function LyricInput({
     const vw = window.innerWidth
     const pad = 8
     const maxWidth = Math.min(vw - pad * 2, 448)
-
     const center = rect.left + rect.width / 2
     const clampedCenter = Math.max(pad + maxWidth / 2, Math.min(vw - pad - maxWidth / 2, center))
     const bottom = Math.max(8, window.innerHeight - rect.top + 8)
-
     setTooltipPos({ left: clampedCenter, bottom })
   }
 
@@ -58,7 +56,6 @@ export function LyricInput({
   const handleBlur = () => {
     onBlur?.()
     setShowTooltip(false)
-
     if (value.trim() && state !== "correct") {
       validateAnswer()
     } else if (!value.trim()) {
@@ -74,15 +71,11 @@ export function LyricInput({
 
   const validateAnswer = () => {
     if (state === "checking" || state === "correct") return
-
     setState("checking")
-
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
-
     timeoutRef.current = setTimeout(() => {
       const isCorrect = value.trim().toLowerCase() === correctAnswer.toLowerCase()
       setState(isCorrect ? "correct" : "incorrect")
-
       if (isCorrect) {
         setShowTooltip(false)
       } else {
@@ -94,16 +87,13 @@ export function LyricInput({
 
   useEffect(() => {
     if (!showTooltip) return
-    computeTooltip()
-
     const handler = () => computeTooltip()
+    computeTooltip()
     window.addEventListener("scroll", handler, true)
     window.addEventListener("resize", handler)
-
     const vv = (window as any).visualViewport as VisualViewport | undefined
     vv?.addEventListener("resize", handler)
     vv?.addEventListener("scroll", handler)
-
     return () => {
       window.removeEventListener("scroll", handler, true)
       window.removeEventListener("resize", handler)
@@ -119,9 +109,9 @@ export function LyricInput({
   }, [])
 
   const getInputStyles = () => {
-    // ↓↓↓ force ~80% font size and keep line-height tight; `!` beats sizes inside the base <Input>
+    // No "!" so iOS override can win with 16px and prevent zoom
     const baseStyles =
-      "inline-flex w-32 h-10 rounded-xl !text-[0.8rem] md:!text-[0.8rem] lg:!text-[1rem] !leading-tight " +
+      "inline-flex w-32 h-10 rounded-xl text-[0.8rem] md:text-[0.9rem] lg:text-[1rem] leading-tight " +
       "font-black uppercase border-none transition-all duration-300 relative overflow-hidden text-center"
 
     switch (state) {
@@ -184,7 +174,7 @@ export function LyricInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className={`${getInputStyles()} focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
+          className={`${getInputStyles()} ios-no-zoom focus-anchor ${className} ${state === "correct" ? "!opacity-100" : ""}`}
           style={getBackgroundStyle()}
           placeholder={placeholder}
           disabled={state === "checking" || state === "correct"}
