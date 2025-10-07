@@ -772,7 +772,7 @@ export function LyricsSection({
               onChange={wrapOnChange(guesses[31]?.onChange, "baobab")}
               correctAnswer="baobab"
               clue={guesses[31]?.clue}
-              onFocus={onFocusClue(guesses[16]?.clue)}
+              onFocus={onFocusClue(guesses[31]?.clue)}
               onBlur={() => setFocusedWord(null)}
             />
             <span className={`font-black uppercase ${isLyricActive(69) ? "text-black" : "text-black/25"}`}>
