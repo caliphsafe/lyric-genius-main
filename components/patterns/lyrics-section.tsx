@@ -768,7 +768,7 @@ export function LyricsSection({
               PUT THE
             </span>
             <LyricInput
-              value={guesses[16]?.value || ""}
+              value={guesses[31]?.value || ""}
               onChange={wrapOnChange(guesses[31]?.onChange, "baobab")}
               correctAnswer="baobab"
               clue={guesses[31]?.clue}
