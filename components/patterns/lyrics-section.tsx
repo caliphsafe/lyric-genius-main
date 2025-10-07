@@ -746,7 +746,7 @@ export function LyricsSection({
               OF AN ASK FOR A FIRST BITE
             </span>
           </div>
-
+         <div className="flex flex-wrap items-center gap-2">
           <span className={`font-black uppercase ${isLyricActive(67) ? "text-black" : "text-black/25"}`}>
             BUT I HEARD SHE EAT THE WOOD LIKE A
           </span>
@@ -758,7 +758,7 @@ export function LyricsSection({
             onFocus={onFocusClue(guesses[30]?.clue)}
             onBlur={() => setFocusedWord(null)}
           />
-
+         </div>
           <p className={`font-black uppercase ${isLyricActive(68) ? "text-black" : "text-black/25"}`}>
             YIKES, I HAD TO FIND OUT WHAT THE SLURP LIKE
           </p>
