@@ -747,9 +747,9 @@ export function LyricsSection({
             </span>
           </div>
 
-          <p className={`font-black uppercase ${isLyricActive(67) ? "text-black" : "text-black/25"}`}>
+          <span className={`font-black uppercase ${isLyricActive(67) ? "text-black" : "text-black/25"}`}>
             BUT I HEARD SHE EAT THE WOOD LIKE A
-          </p>
+          </span>
           <LyricInput
             value={guesses[30]?.value || ""}
             onChange={wrapOnChange(guesses[30]?.onChange, "termite")}
