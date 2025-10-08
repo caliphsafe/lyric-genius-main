@@ -1,11 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { LyricsSection } from "@/components/patterns/lyrics-section"
 
 export function LyricGameView() {
-  const router = useRouter()
   const [guess0, setGuess0] = useState("")
   const [guess1, setGuess1] = useState("")
   const [guess2, setGuess2] = useState("")
@@ -99,7 +97,6 @@ export function LyricGameView() {
           verseTitle="VERSE 1"
           guesses={guesses}
           onActiveClueChange={setActiveClue}
-          onGameComplete={() => router.push("/reward")}
         />
       </div>
 
