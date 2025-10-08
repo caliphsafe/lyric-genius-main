@@ -7,7 +7,7 @@ interface LyricGuess {
   id: string
   value: string
   onChange: (value: string) => void
-  correctAnswer: string
+  correctAnswer?: string
   clue?: string
 }
 
@@ -17,7 +17,6 @@ interface LyricsSection {
   currentTime?: number
   // lets parent (page/header) update the banner text
   onActiveClueChange?: (clue: string | null) => void
-  onGameComplete?: () => void
 }
 
 export function LyricsSection({
@@ -25,7 +24,6 @@ export function LyricsSection({
   guesses,
   currentTime = 0,
   onActiveClueChange,
-  onGameComplete,
 }: LyricsSection) {
   const [focusedWord, setFocusedWord] = useState<string | null>(null)
 
@@ -54,12 +52,45 @@ export function LyricsSection({
   // ✅ Disable time-based highlighting: always return true so everything is black
   const isLyricActive = (_index: number) => true
 
-  const areAllInputsCorrect = () =>
-    guesses.every((guess) =>
-      guess.correctAnswer
-        ? normalized(guess.value) === normalized(guess.correctAnswer)
-        : false,
-    )
+  const areAllInputsCorrect = () => {
+    const correctAnswers = [
+      "bitch",
+      "first",
+      "budden",
+      "buttercup",
+      "butternut",
+      "friend",
+      "polygamy",
+      "polygamy",
+      "3rd",
+      "wife",
+      "love",
+      "matching",
+      "3rd",
+      "termite",
+      "birthright",
+      "polygamy",
+      "court",
+      "rug",
+      "cuddle",
+      "dead",
+      "kid",
+      "sin",
+      "gang",
+      "adore",
+      "adhd",
+      "ignore",
+      "anaconda",
+      "twerking",
+      "squirting",
+      "cursive",
+    ]
+
+    return correctAnswers.every((answer, index) => {
+      const guess = guesses[index]
+      return guess && guess.value.toLowerCase().trim() === answer.toLowerCase()
+    })
+  }
 
   // Helpers: normalize, safe wrapper for onChange (handles string or event), and focus->clue
   const normalized = (s: string) => s.trim().toLowerCase()
@@ -786,7 +817,7 @@ export function LyricsSection({
               }`}
               onClick={() => {
                 if (areAllInputsCorrect()) {
-                  onGameComplete?.()
+                  console.log("Game completed!")
                 }
               }}
             >
@@ -798,4 +829,3 @@ export function LyricsSection({
     </div>
   )
 }
-```
