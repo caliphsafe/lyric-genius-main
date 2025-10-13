@@ -2,6 +2,7 @@
 
 import { LyricInput } from "@/components/primitives/lyric-input"
 import { useState } from "react"
+import { useRouter } from "next/navigation" // ✅ added
 
 interface LyricGuess {
   id: string
@@ -26,6 +27,7 @@ export function LyricsSection({
   onActiveClueChange,
 }: LyricsSection) {
   const [focusedWord, setFocusedWord] = useState<string | null>(null)
+  const router = useRouter() // ✅ added
 
   const lyricTimings = [
     { start: 0, end: 3 },
@@ -52,45 +54,14 @@ export function LyricsSection({
   // ✅ Disable time-based highlighting: always return true so everything is black
   const isLyricActive = (_index: number) => true
 
-  const areAllInputsCorrect = () => {
-    const correctAnswers = [
-      "bitch",
-      "first",
-      "budden",
-      "buttercup",
-      "butternut",
-      "friend",
-      "polygamy",
-      "polygamy",
-      "3rd",
-      "wife",
-      "love",
-      "matching",
-      "3rd",
-      "termite",
-      "birthright",
-      "polygamy",
-      "court",
-      "rug",
-      "cuddle",
-      "dead",
-      "kid",
-      "sin",
-      "gang",
-      "adore",
-      "adhd",
-      "ignore",
-      "anaconda",
-      "twerking",
-      "squirting",
-      "cursive",
-    ]
-
-    return correctAnswers.every((answer, index) => {
-      const guess = guesses[index]
-      return guess && guess.value.toLowerCase().trim() === answer.toLowerCase()
-    })
-  }
+  // ✅ NEW: robust completion check that uses each guess's own correctAnswer
+  const allCorrect = guesses.every((g) => {
+    if (!g) return true
+    if (!g.correctAnswer) return true // ignore lines without answers
+    const val = (g.value || "").trim().toLowerCase()
+    const ans = g.correctAnswer.trim().toLowerCase()
+    return val === ans
+  })
 
   // Helpers: normalize, safe wrapper for onChange (handles string or event), and focus->clue
   const normalized = (s: string) => s.trim().toLowerCase()
@@ -703,22 +674,21 @@ export function LyricsSection({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-  <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
-    WE IN THE MAKINGS OF A
-  </span>
-  <LyricInput
-    value={guesses[28]?.value || ""}
-    onChange={wrapOnChange(guesses[28]?.onChange, "matching")}
-    correctAnswer="matching"
-    clue={guesses[28]?.clue}
-    onFocus={onFocusClue(guesses[28]?.clue)}
-    onBlur={() => setFocusedWord(null)}
-  />
-  <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
-    HIS AND HERS RIGHT
-  </span>
-</div>
-
+            <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
+              WE IN THE MAKINGS OF A
+            </span>
+            <LyricInput
+              value={guesses[28]?.value || ""}
+              onChange={wrapOnChange(guesses[28]?.onChange, "matching")}
+              correctAnswer="matching"
+              clue={guesses[28]?.clue}
+              onFocus={onFocusClue(guesses[28]?.clue)}
+              onBlur={() => setFocusedWord(null)}
+            />
+            <span className={`font-black uppercase ${isLyricActive(62) ? "text-black" : "text-black/25"}`}>
+              HIS AND HERS RIGHT
+            </span>
+          </div>
 
           <p className={`font-black uppercase ${isLyricActive(63) ? "text-black" : "text-black/25"}`}>
             OR AM I JUST TRYNA SEE IT IN REVERSE LIKE…
@@ -746,19 +716,21 @@ export function LyricsSection({
               OF AN ASK FOR A FIRST BITE
             </span>
           </div>
-         <div className="flex flex-wrap items-center gap-2">
-          <span className={`font-black uppercase ${isLyricActive(67) ? "text-black" : "text-black/25"}`}>
-            BUT I HEARD SHE EAT THE WOOD LIKE A
-          </span>
-          <LyricInput
-            value={guesses[30]?.value || ""}
-            onChange={wrapOnChange(guesses[30]?.onChange, "termite")}
-            correctAnswer="termite"
-            clue={guesses[30]?.clue}
-            onFocus={onFocusClue(guesses[30]?.clue)}
-            onBlur={() => setFocusedWord(null)}
-          />
-         </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`font-black uppercase ${isLyricActive(67) ? "text-black" : "text-black/25"}`}>
+              BUT I HEARD SHE EAT THE WOOD LIKE A
+            </span>
+            <LyricInput
+              value={guesses[30]?.value || ""}
+              onChange={wrapOnChange(guesses[30]?.onChange, "termite")}
+              correctAnswer="termite"
+              clue={guesses[30]?.clue}
+              onFocus={onFocusClue(guesses[30]?.clue)}
+              onBlur={() => setFocusedWord(null)}
+            />
+          </div>
+
           <p className={`font-black uppercase ${isLyricActive(68) ? "text-black" : "text-black/25"}`}>
             YIKES, I HAD TO FIND OUT WHAT THE SLURP LIKE
           </p>
@@ -809,15 +781,15 @@ export function LyricsSection({
 
           <div className="flex justify-center mt-8 mb-16">
             <button
-              disabled={!areAllInputsCorrect()}
+              disabled={!allCorrect} // ✅ updated
               className={`px-8 py-3 rounded-xl font-bold text-lg transition-all duration-200 ${
-                areAllInputsCorrect()
+                allCorrect
                   ? "bg-black text-[#FFFF64] hover:scale-105 cursor-pointer"
                   : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-50"
               }`}
               onClick={() => {
-                if (areAllInputsCorrect()) {
-                  console.log("Game completed!")
+                if (allCorrect) {
+                  router.push("/reward") // ✅ go to reward page
                 }
               }}
             >
