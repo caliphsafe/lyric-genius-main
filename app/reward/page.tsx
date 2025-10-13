@@ -15,12 +15,15 @@ export default function RewardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       setShareOrigin(window.location.origin)
-      // Try detect file sharing support (Android Chrome typically true)
-      const testFile = new File(["test"], "test.txt", { type: "text/plain" })
-      setSupportsFileShare(
-        !!(navigator as any).canShare && (navigator as any).canShare({ files: [testFile] }),
-      )
-      // Pre-render the story asset on mount
+      // Detect file sharing support (mostly Android Chrome)
+      try {
+        const testFile = new File(["test"], "test.txt", { type: "text/plain" })
+        setSupportsFileShare(
+          !!(navigator as any).canShare && (navigator as any).canShare({ files: [testFile] }),
+        )
+      } catch {
+        setSupportsFileShare(false)
+      }
       renderStoryCard()
     }
   }, [])
@@ -28,7 +31,7 @@ export default function RewardPage() {
   const storyWidth = 1080
   const storyHeight = 1920
 
-  // UPDATED: clean “You won” card (no discount code drawn on the image)
+  // Renders a clean “winner” graphic (NO DISCOUNT CODE on the image)
   const renderStoryCard = async () => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -37,7 +40,7 @@ export default function RewardPage() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Background (brand yellow)
+    // Background
     ctx.fillStyle = "#FFFF64"
     ctx.fillRect(0, 0, storyWidth, storyHeight)
 
@@ -53,15 +56,14 @@ export default function RewardPage() {
     ctx.textAlign = "center"
     ctx.font = "bold 80px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial"
     ctx.fillText("YOU WON", storyWidth / 2, 520)
-
     ctx.font = "bold 70px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial"
     ctx.fillText("LYRIC GENIUS", storyWidth / 2, 600)
 
-    // Subline (no code!)
+    // Subline
     ctx.font = "bold 44px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial"
     wrapText(ctx, "Post this to your story & tag @caliphsafe", storyWidth / 2, 720, 900, 56)
 
-    // Footer tag
+    // Footer
     ctx.font = "bold 36px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial"
     ctx.fillText("powered by kiiku", storyWidth / 2, storyHeight - 120)
   }
@@ -74,24 +76,6 @@ export default function RewardPage() {
       img.onerror = reject
       img.src = src
     })
-
-  // (kept; harmless if unused)
-  const roundedRect = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    r: number,
-  ) => {
-    ctx.beginPath()
-    ctx.moveTo(x + r, y)
-    ctx.arcTo(x + w, y, x + w, y + h, r)
-    ctx.arcTo(x + w, y + h, x, y + h, r)
-    ctx.arcTo(x, y + h, x, y, r)
-    ctx.arcTo(x, y, x + w, y, r)
-    ctx.closePath()
-  }
 
   const wrapText = (
     ctx: CanvasRenderingContext2D,
@@ -115,7 +99,6 @@ export default function RewardPage() {
       }
     }
     lines.push(line)
-
     lines.forEach((ln, i) => ctx.fillText(ln.trim(), x, y + i * lineHeight))
   }
 
@@ -127,14 +110,29 @@ export default function RewardPage() {
     return new File([blob], name, { type: "image/png" })
   }
 
+  // More robust download: Blob + createObjectURL, with new-tab fallback (helps iOS)
   const handleDownload = async () => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const url = canvas.toDataURL("image/png")
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "lyric-genius-win.png"
-    a.click()
+    try {
+      const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, "image/png", 0.95))
+      if (blob) {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = "lyric-genius-win.png"
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        URL.revokeObjectURL(url)
+        return
+      }
+    } catch {
+      // fall through to dataURL
+    }
+    // Fallback: open in a new tab so user can long-press/save (iOS-friendly)
+    const dataUrl = canvas.toDataURL("image/png")
+    window.open(dataUrl, "_blank")
   }
 
   const handleShareAndroid = async () => {
@@ -151,14 +149,28 @@ export default function RewardPage() {
       } else {
         await handleDownload()
       }
-    } catch (e) {
+    } catch {
       await handleDownload()
     }
   }
 
+  // Tries to open the IG Story camera; falls back to Instagram profile if deep link blocked
   const openInstagramStoryCamera = () => {
-    // Opens the IG camera; user picks the just-downloaded image from Photos/Gallery
-    window.location.href = "instagram://story-camera"
+    const scheme = "instagram://story-camera"
+    const fallback = "https://instagram.com/_u/caliphsafe"
+    let bounced = false
+    const timer = setTimeout(() => {
+      if (!bounced) window.open(fallback, "_blank", "noopener,noreferrer")
+    }, 800)
+    try {
+      // User gesture context: should attempt to open the app
+      (window as any).location.href = scheme
+      bounced = true
+      clearTimeout(timer)
+    } catch {
+      clearTimeout(timer)
+      window.open(fallback, "_blank", "noopener,noreferrer")
+    }
   }
 
   return (
@@ -175,12 +187,52 @@ export default function RewardPage() {
           </p>
         </header>
 
-        {/* ... your Merch + Video sections unchanged ... */}
+        {/* RESTORED: Merch discount (code is shown here on the page, not on the graphic) */}
+        <section className="grid gap-8 md:grid-cols-2">
+          <div className="rounded-3xl border border-black/10 bg-white/60 p-8 shadow-lg">
+            <h2 className="text-xl font-black uppercase tracking-tight">Exclusive Merch Discount</h2>
+            <p className="mt-3 text-sm font-semibold uppercase text-black/70">
+              Use this code at checkout to get 20% off select Caliph merch.
+            </p>
+            <div className="mt-6 rounded-2xl border-2 border-dashed border-black bg-[#FFFF64] p-6 text-center">
+              <p className="text-sm font-semibold uppercase text-black/70">Your code</p>
+              <p className="mt-2 text-3xl font-black tracking-widest">{DISCOUNT_CODE}</p>
+            </div>
+            <Link
+              href="https://caliph-merch.example.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-black px-6 py-3 font-bold uppercase text-[#FFFF64] transition hover:scale-105"
+            >
+              Shop the drop
+            </Link>
+          </div>
 
+          {/* RESTORED: Hidden video */}
+          <div className="rounded-3xl border border-black/10 bg-white/60 p-0 shadow-lg">
+            <div className="rounded-t-3xl bg-black p-6 text-[#FFFF64]">
+              <h2 className="text-xl font-black uppercase tracking-tight">Hidden performance</h2>
+              <p className="mt-2 text-sm font-semibold uppercase text-[#FFFF64]/80">
+                Stream this unreleased live cut while it&apos;s still underground.
+              </p>
+            </div>
+            <div className="aspect-video w-full overflow-hidden rounded-b-3xl bg-black">
+              <iframe
+                className="h-full w-full"
+                src="https://www.youtube.com/embed/Pxi4VazCkuw?autoplay=0&rel=0"
+                title="Hidden Caliph Performance"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Share section */}
         <section className="rounded-3xl border border-black/10 bg-white/60 p-8 text-center shadow-lg">
           <h2 className="text-xl font-black uppercase tracking-tight">Share the win</h2>
           <p className="mt-2 text-sm font-semibold uppercase text-black/70">
-            Download your winner graphic (no code shown), then open Instagram Stories and post it.
+            Download your winner graphic (no code on the image), then open Instagram Stories and post it.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
